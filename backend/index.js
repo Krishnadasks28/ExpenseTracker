@@ -7,15 +7,27 @@ configDotenv();
 
 import connectDB from "./config/db";
 import errorHandler from "./middlewares/error.middleware";
+import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth.route";
 
 const app = express();
 
 //logging
 app.use(morgan("dev"));
 
-app.use(express.json);
+// these middlewares should be before routes
+app.use(
+  cors({
+    origin: "http://localhost:5137",
+    credentials: true,
+  })
+);
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors);
+app.use(cookieParser());
+
+// routes
+app.use("/api/auth", authRouter);
 
 app.use(errorHandler);
 

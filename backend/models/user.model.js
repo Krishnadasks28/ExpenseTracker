@@ -2,20 +2,42 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    firebaseid: {
+      type: String,
+      required: true,
+    },
     name: {
       type: String,
       required: true,
     },
+    phone_number: {
+      type: Number,
+      unique: true,
+      sparse: true,
+    },
     email: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       lowercase: true,
     },
-    password: {
+    avatar: {
       type: String,
-      required: true,
-      select: false,
+      required: false,
+    },
+    authProviders: {
+      type: [String],
+      enum: ["phone", "google.com"],
+      default: [],
+    },
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+    role: {
+      type: String,
+      enum: ["User", "Admin"],
+      default: "User",
     },
     currency: {
       type: String,
