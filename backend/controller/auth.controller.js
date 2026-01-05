@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
 import user from "../models/user.model.js";
 import admin from "firebase-admin";
+import asyncHandler from "../middlewares/asyncHandler.js";
 
-export const register = async (req, res) => {
+export const register = asyncHandler(async (req, res) => {
   const { idToken } = req.body;
 
   const decoded = await admin.auth().verifyIdToken(idToken);
@@ -16,9 +17,11 @@ export const register = async (req, res) => {
     firebase: { sign_in_provider },
   } = decoded;
 
+  // checking for exisiting user
   let currentUser = await user.findOne({ firebaseid: uid });
 
   if (!currentUser) {
+    // creating new user
     currentUser = await user.create({
       firebaseid: uid,
       phone_number,
@@ -41,4 +44,4 @@ export const register = async (req, res) => {
 
   res.cookie("token", token, { httpOnly: true });
   res.json({ user: currentUser });
-};
+});
