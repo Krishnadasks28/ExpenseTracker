@@ -9,7 +9,8 @@ import connectDB from "./config/db.js";
 import errorHandler from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route.js";
-import expenseRouter from "./routes/transaction.route.js";
+import transactionRouter from "./routes/transaction.route.js";
+import categoryRoute from "./routes/category.route.js";
 
 const app = express();
 
@@ -29,7 +30,8 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/auth", authRouter);
-app.use("/api/expense",expenseRouter)
+app.use("/api/transaction", transactionRouter);
+app.use("/api/category", categoryRoute);
 
 app.use(errorHandler);
 
