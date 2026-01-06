@@ -21,10 +21,21 @@ export const getTransactions = asyncHandler(async (req, res) => {
 
 // add a transaction
 export const addTransaction = asyncHandler(async (req, res) => {
-  const expense = await transaction.create({
-    ...req.body,
+  const { amount, type, category, account, description, date } = req.body;
+
+  const payload = {
+    amount,
+    type,
+    category,
+    account,
+    description,
     user: req.userId,
-  });
+  };
+
+  if (description) payload.description = description;
+  if (date) payload.date = date;
+
+  const expense = await transaction.create(payload);
 
   res.status(200).json(expense);
 });

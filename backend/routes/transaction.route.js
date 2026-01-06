@@ -6,12 +6,19 @@ import {
   getTransactions,
   updateTransaction,
 } from "../controller/transaction.controller.js";
+import { createTransactionValidator, validateTransaction } from "../validators/transactionValidator.js";
 
 const transactionRouter = express.Router();
 
 transactionRouter.get("/getTransactions", verifyUser, getTransactions);
 
-transactionRouter.post("/addTransaction", verifyUser, addTransaction);
+transactionRouter.post(
+  "/addTransaction",
+  verifyUser,
+  createTransactionValidator,
+  validateTransaction,
+  addTransaction
+);
 
 transactionRouter.put("/updateTransaction/:id", verifyUser, updateTransaction);
 

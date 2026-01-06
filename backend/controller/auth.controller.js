@@ -4,7 +4,11 @@ import admin from "firebase-admin";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
 export const register = asyncHandler(async (req, res) => {
-  const { idToken } = req.body;
+  const idToken = req.headers.autherization?.split(" ")[1];
+
+  if (!idToken) {
+    return res.status(404).json({ message: "Token missing" });
+  }
 
   const decoded = await admin.auth().verifyIdToken(idToken);
 
@@ -43,5 +47,5 @@ export const register = asyncHandler(async (req, res) => {
   });
 
   res.cookie("token", token, { httpOnly: true });
-  res.json({ user: currentUser });
+  res.status(200).json({ user: currentUser });
 });
