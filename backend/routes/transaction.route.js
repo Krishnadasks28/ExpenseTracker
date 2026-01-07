@@ -6,7 +6,11 @@ import {
   getTransactions,
   updateTransaction,
 } from "../controller/transaction.controller.js";
-import { createTransactionValidator, validateTransaction } from "../validators/transactionValidator.js";
+import {
+  createTransactionValidator,
+  updateTransactionValidator,
+  validateTransaction,
+} from "../validators/transactionValidator.js";
 
 const transactionRouter = express.Router();
 
@@ -20,7 +24,13 @@ transactionRouter.post(
   addTransaction
 );
 
-transactionRouter.put("/updateTransaction/:id", verifyUser, updateTransaction);
+transactionRouter.put(
+  "/updateTransaction/:id",
+  verifyUser,
+  updateTransactionValidator,
+  validateTransaction,
+  updateTransaction
+);
 
 transactionRouter.delete(
   "/deleteTransaction/:id",

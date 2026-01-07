@@ -1,4 +1,4 @@
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 
 export const createTransactionValidator = [
   body("amount")
@@ -44,3 +44,22 @@ export const validateTransaction = (req, res, next) => {
 
   next();
 };
+
+export const updateTransactionValidator = [
+  param("id").isMongoId().withMessage("Invalid transaction id"),
+  body("amount")
+    .optional()
+    .isFloat({ min: 1 })
+    .withMessage("Amount must be greater than 0"),
+  body("type")
+    .optional()
+    .isIn(["income", "expense"])
+    .withMessage("Type must be income or expense"),
+  body("category").optional().isMongoId().withMessage("Invalid category id"),
+  body("account").optional().isMongoId().withMessage("Invalid account id"),
+  body("description")
+    .optional({ checkFalsy: true })
+    .isString()
+    .withMessage("Description must be a string"),
+  body("date").optional().isISO8601().withMessage("Invalid date format"),
+];
