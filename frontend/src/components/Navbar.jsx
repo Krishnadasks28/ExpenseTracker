@@ -1,37 +1,26 @@
-import { Bell, Search, TrendingUp, UserCircle } from "lucide-react";
-import DarkModeToggle from "./DarkModeToggle";
+import { TrendingUp } from "lucide-react";
+import Search from "./Search";
+import NavMenu from "./NavMenu";
 
 function Navbar() {
   return (
     <>
-      <div className="w-full flex justify-between py-4 px-10 dark:bg-black dark:text-white border-b border-b-gray-300 ">
+      <div className="w-full flex justify-between py-5 px-2 sm:px-10 dark:bg-black dark:text-white border-b border-b-gray-300 ">
         <div className="flex gap-10 w-full">
-          <div className="flex gap-2">
-            <div className="h-10 w-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+          <div className="flex justify-center sm:justify-start w-full sm:w-fit gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-emerald-500 flex items-center justify-center">
               <TrendingUp className=" text-white" />
             </div>
-            <span className="text-3xl font-semibold items-center flex">
+            <span className="flex text-xl sm:text-2xl font-semibold items-center">
               Expense Tracker
             </span>
           </div>
           {/* search transaction */}
-
-          <div className="bg-slate-200 dark:bg-black dark:border flex gap-2 items-center w-1/3 py-2 px-4 rounded-xl">
-            <Search className="" />
-            <input
-              type="text"
-              placeholder="Search Transaction..."
-              className="w-full focus:outline-none"
-            />
-          </div>
+          <Search className={"hidden sm:flex"} />
         </div>
 
         {/* darl mode,notification,profile */}
-        <div className="flex gap-8 items-center">
-          <DarkModeToggle />
-          <Bell />
-          <UserCircle />
-        </div>
+        <NavMenu className={"hidden sm:flex gap-2 sm:gap-8 items-center"} />
       </div>
     </>
   );
