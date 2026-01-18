@@ -5,7 +5,7 @@ import NavMenu from "./NavMenu";
 function Navbar() {
   return (
     <>
-      <div className="w-full flex justify-between py-5 px-2 sm:px-10 dark:bg-black dark:text-white border-b border-b-gray-300 ">
+      <div className="fixed top-0 z-10 w-full flex justify-between py-5 px-8 lg:px-0 sm:px-15 bg-white dark:bg-black dark:text-white border-b border-b-gray-300 ">
         <div className="flex gap-10 w-full">
           <div className="flex justify-center sm:justify-start w-full sm:w-fit gap-3">
             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-emerald-500 flex items-center justify-center">
@@ -16,11 +16,11 @@ function Navbar() {
             </span>
           </div>
           {/* search transaction */}
-          <Search className={"hidden sm:flex"} />
+          <Search className={"hidden lg:flex"} />
         </div>
 
         {/* darl mode,notification,profile */}
-        <NavMenu className={"hidden sm:flex gap-2 sm:gap-8 items-center"} />
+        <NavMenu className={"hidden sm:flex me-5 gap-2 sm:gap-8 items-center"} />
       </div>
     </>
   );

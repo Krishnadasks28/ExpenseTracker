@@ -6,7 +6,7 @@ export const ensureDefaultCategories = async (userId) => {
 
   if (count === 0) {
     const categories = defaultCategories.map((category) => ({
-      ...cat,
+      ...category,
       user: userId,
       isDefault: true,
     }));

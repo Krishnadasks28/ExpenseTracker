@@ -17,7 +17,7 @@ function DarkModeToggle() {
 
   return (
     <>
-      <div className="cursor-pointer p-1 hover:bg-slate-100 rounded-xl">
+      <div className="cursor-pointer p-1 hover:bg-slate-100 dark:hover:text-black rounded-xl">
         {dark ? (
           <Sun onClick={() => toggleDark()} />
         ) : (
