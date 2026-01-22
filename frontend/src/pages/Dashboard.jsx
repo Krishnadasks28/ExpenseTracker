@@ -20,6 +20,8 @@ import {
   YAxis,
 } from "recharts";
 import TransactionMenu from "../components/TransactionMenu";
+import AddTransaction from "../components/AddTransaction";
+import { useState } from "react";
 
 function Dashboard() {
   const monthlyData = [
@@ -30,6 +32,8 @@ function Dashboard() {
     { month: "May", income: 6000, expense: 4500 },
     { month: "Jun", income: 5800, expense: 4200 },
   ];
+
+  const [showTransactionModel, setTransactionModel] = useState(false);
 
   return (
     <div className="px-5 lg:px-10 h-screen w-full">
@@ -42,7 +46,10 @@ function Dashboard() {
         </div>
 
         <div>
-          <button className="text-sm md:px-4 md:py-2 px-2 py-1 rounded-xl bg-emerald-500 text-white font-bold flex items-center gap-1 sm:gap-3">
+          <button
+            onClick={() => setTransactionModel(true)}
+            className="cursor-pointer hover:bg-emerald-600 text-xs lg:text-lg md:px-4 md:py-2 px-2 py-1 rounded-xl bg-emerald-500 text-white font-bold flex items-center gap-1 sm:gap-3"
+          >
             <Plus className="h-5 w-5 hidden sm:inline" />
             Add Transaction
           </button>
@@ -179,6 +186,10 @@ function Dashboard() {
         </div>
         <TransactionMenu />
       </div>
+      <AddTransaction
+        showModel={showTransactionModel}
+        setShowModel={setTransactionModel}
+      />
     </div>
   );
 }

@@ -46,7 +46,7 @@ const TransactionMenu = () => {
           return (
             <div
               key={t.id}
-              className="flex justify-between text-xl xl:text-2xl hover:bg-slate-200 dark:hover:bg-neutral-900 dark:hover:text-white group rounded-xl p-3"
+              className="flex justify-between text-xl11111 hover:bg-slate-200 dark:hover:bg-neutral-900 dark:hover:text-white group rounded-xl p-3"
             >
               <div className="flex gap-3 justify-center items-center">
                 <div
