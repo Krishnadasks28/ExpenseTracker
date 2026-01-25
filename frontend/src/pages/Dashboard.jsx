@@ -1,7 +1,6 @@
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Link,
   Plus,
   TrendingDown,
   TrendingUp,
@@ -36,11 +35,11 @@ function Dashboard() {
   const [showTransactionModel, setTransactionModel] = useState(false);
 
   return (
-    <div className="px-5 lg:px-10 h-screen w-full">
+    <div className="px-2.5 lg:px-10 min-h-screen w-full">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl sm:text-4xl font-semibold">Dashboard</h1>
-          <p className="text-sm sm:text-xl text-slate-500 dark:text-slate-400">
+          <p className="text-xs sm:text-lg text-slate-500 dark:text-slate-400">
             Welome back! Here's your financial overview.
           </p>
         </div>
@@ -48,9 +47,9 @@ function Dashboard() {
         <div>
           <button
             onClick={() => setTransactionModel(true)}
-            className="cursor-pointer hover:bg-emerald-600 text-xs lg:text-lg md:px-4 md:py-2 px-2 py-1 rounded-xl bg-emerald-500 text-white font-bold flex items-center gap-1 sm:gap-3"
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            <Plus className="h-5 w-5 hidden sm:inline" />
+            <Plus size={18} className="h-5 w-5 hidden sm:inline" />
             Add Transaction
           </button>
         </div>
@@ -58,7 +57,7 @@ function Dashboard() {
 
       {/* dashboard report section */}
       <div className="flex sm:flex-row flex-col gap-3 sm:gap-5 mt-6">
-        <div className="py-4 px-6 sm:p-8 rounded-2xl border border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Balance
@@ -78,7 +77,7 @@ function Dashboard() {
 
         {/*  */}
 
-        <div className="py-4 px-6 sm:p-8 rounded-2xl border border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Income
@@ -100,7 +99,7 @@ function Dashboard() {
 
         {/*  */}
 
-        <div className="py-4 px-6 sm:p-8  rounded-2xl border border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8  rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Expense
@@ -126,7 +125,7 @@ function Dashboard() {
       {/* chart section */}
 
       <div className="flex flex-col xl:flex-row gap-5 mt-5 w-full">
-        <div className="border-slate-200 border rounded-xl p-2 lg:p-8 w-full">
+        <div className="shadow-sm border-t border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
           <h1 className="text-xl mb-3">Monthly Overview</h1>
 
           <ResponsiveContainer width="100%" height={400}>
@@ -147,7 +146,7 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="border-slate-200 border rounded-xl p-2 lg:p-8 w-full">
+        <div className="shadow-sm border-t border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
           <h1 className="text-xl mb-3">Spending Trend</h1>
 
           <ResponsiveContainer width="100%" height={400}>
@@ -175,8 +174,8 @@ function Dashboard() {
       </div>
 
       {/* Recent Transactions */}
-      <div className="w-full rounded-xl border mt-5 border-slate-200 p-2 md:p-8">
-        <div className="flex justify-between text-xl">
+      <div className="w-full rounded-xl mt-5 shadow-sm border-t border-x border-slate-200 p-2 pt-4 px-4 md:p-8">
+        <div className="flex justify-between text-sm lg:text-xl">
           <h1>Recent Transactions</h1>
           <NavLink to={"/transactions"}>
             <span className="hover:bg-slate-100 dark:hover:text-black p-2 rounded-2xl">
