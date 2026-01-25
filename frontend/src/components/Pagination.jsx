@@ -73,7 +73,7 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage }) => {
                 onClick={() => handlePageChange(page)}
                 className={`px-2 py-1.5 rounded-lg font-medium transition-colors ${
                   currentPage === page
-                    ? "bg-blue-600 text-white border-blue-600 border-2"
+                    ? "dark:bg-white dark:text-black dark:border-white bg-blue-600 text-white border-blue-600 border-2"
                     : "border border-gray-300 dark:text-white dark:border-white text-gray-700 hover:bg-gray-100"
                 }`}
               >

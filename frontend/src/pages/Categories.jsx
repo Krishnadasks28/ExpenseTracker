@@ -79,29 +79,29 @@ export default function Categories() {
     <div className="min-h-screen px-3 lg:px-10">
       <div className="">
         {/* Header */}
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-center mb-5">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Categories
-            </h1>
-            <p className="text-gray-600">Manage your transaction categories</p>
+            <h1 className="text-2xl sm:text-4xl font-semibold">Categories</h1>
+            <p className="text-xs sm:text-lg text-slate-500 dark:text-slate-400">
+              Manage your transaction categories
+            </p>
           </div>
-          <button className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-            <Plus size={20} />
+          <button className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-2 rounded-lg font-medium transition-colors">
+            <Plus size={18} className="h-5 w-5 hidden sm:inline" />
             Add Category
           </button>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-3 mb-8">
+        <div className="flex gap-3">
           {["All", "Income", "Expense"].map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`cursor-pointer px-2 lg:px-4 py-1 lg:py-2 rounded-lg text-sm lg:text-lg font-medium transition-colors ${
                 activeFilter === filter
                   ? "bg-emerald-500 text-white"
-                  : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300"
+                  : "dark:bg-black dark:hover:bg-white dark:text-white dark:hover:text-black bg-white  text-gray-700 border border-gray-200 hover:border-gray-300"
               }`}
             >
               {filter}
@@ -110,13 +110,13 @@ export default function Categories() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 mt-2.5 lg:grid-cols-3 gap-6">
           {filteredCategories.map((category) => {
             const IconComponent = category.icon;
             return (
               <div
                 key={category.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+                className="rounded-xl border-2 border-gray-200 p-6 hover:shadow-lg transition-shadow"
               >
                 {/* Top Section with Icon and Actions */}
                 <div className="flex justify-between items-start mb-4">
@@ -126,7 +126,7 @@ export default function Categories() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                    <button className="p-2 text-gray-400 dark:hover:text-white hover:text-gray-600 transition-colors">
                       <Edit2 size={18} />
                     </button>
                     <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
@@ -136,16 +136,14 @@ export default function Categories() {
                 </div>
 
                 {/* Category Name */}
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {category.name}
-                </h3>
+                <h3 className="text-xl font-bold mb-3">{category.name}</h3>
 
                 {/* Category Type and Transaction Count */}
                 <div className="flex justify-between items-center">
                   <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
                     {category.type}
                   </span>
-                  <span className="text-gray-600 text-sm">
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">
                     {category.transactions} transactions
                   </span>
                 </div>

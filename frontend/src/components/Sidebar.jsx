@@ -8,9 +8,14 @@ import {
   Settings,
   Menu,
   ChevronLeftCircle,
+  ToggleLeft,
+  Sun,
+  Moon,
+  ToggleRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import DarkModeToggle from "./DarkModeToggle";
 
 function Sidebar() {
   const [showSideBar, setShowSideBar] = useState(false);
@@ -22,6 +27,19 @@ function Sidebar() {
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ];
+
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [dark]);
+
+  const toggleDark = () => {
+    setDark((prev) => !prev);
+  };
   return (
     <>
       <div className="left-6 top-6 fixed z-20 lg:z-0">
@@ -51,7 +69,7 @@ function Sidebar() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 px-4">
+        <div className="flex flex-col gap-1 px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -75,6 +93,31 @@ function Sidebar() {
               </NavLink>
             );
           })}
+
+          <div
+            onClick={() => toggleDark()}
+            className="md:hidden flex justify-between items-center cursor-pointer sm:text-xl rounded-xl font-medium p-4 gap-3 text-slate-400 hover:bg-slate-200 hover:text-gray-800"
+          >
+            <div className="flex items-center gap-3">
+              {dark ? (
+                <Moon className="h-5 w-5" />
+              ) : (
+                <Sun className="h-5 w-5" />
+              )}
+              <span>Dark Mode</span>
+            </div>
+            <div
+              className={`flex items-center rounded-full px-1.5 py-1 w-13 transition-colors ${
+                dark ? "bg-emerald-500" : "bg-gray-300"
+              }`}
+            >
+              <div
+                className={`w-4.5 h-4.5 rounded-full bg-white transition-transform ${
+                  dark ? "translate-x-6" : "translate-x-0"
+                }`}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </>

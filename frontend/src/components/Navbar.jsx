@@ -20,7 +20,7 @@ function Navbar() {
         </div>
 
         {/* darl mode,notification,profile */}
-        <NavMenu className={"hidden sm:flex me-5 gap-2 sm:gap-8 items-center"} />
+        <NavMenu className={"hidden md:flex me-5 gap-2 sm:gap-8 items-center"} />
       </div>
     </>
   );

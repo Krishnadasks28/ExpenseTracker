@@ -57,7 +57,7 @@ function Dashboard() {
 
       {/* dashboard report section */}
       <div className="flex sm:flex-row flex-col gap-3 sm:gap-5 mt-6">
-        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t dark:border-b border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Balance
@@ -77,7 +77,7 @@ function Dashboard() {
 
         {/*  */}
 
-        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t dark:border-b border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Income
@@ -99,7 +99,7 @@ function Dashboard() {
 
         {/*  */}
 
-        <div className="py-4 px-6 sm:p-8  rounded-2xl shadow-sm border-t border-x border-slate-200 w-full">
+        <div className="py-4 px-6 sm:p-8  rounded-2xl shadow-sm border-t dark:border-b border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
               Total Expense
@@ -125,7 +125,7 @@ function Dashboard() {
       {/* chart section */}
 
       <div className="flex flex-col xl:flex-row gap-5 mt-5 w-full">
-        <div className="shadow-sm border-t border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
+        <div className="shadow-sm border-t dark:border-b border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
           <h1 className="text-xl mb-3">Monthly Overview</h1>
 
           <ResponsiveContainer width="100%" height={400}>
@@ -146,7 +146,7 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="shadow-sm border-t border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
+        <div className="shadow-sm border-t dark:border-b border-x border-slate-200 rounded-xl p-2 lg:p-8 w-full">
           <h1 className="text-xl mb-3">Spending Trend</h1>
 
           <ResponsiveContainer width="100%" height={400}>
@@ -174,7 +174,7 @@ function Dashboard() {
       </div>
 
       {/* Recent Transactions */}
-      <div className="w-full rounded-xl mt-5 shadow-sm border-t border-x border-slate-200 p-2 pt-4 px-4 md:p-8">
+      <div className="w-full rounded-xl mt-5 shadow-sm border-t dark:border-b border-x border-slate-200 p-2 pt-4 px-4 md:p-8">
         <div className="flex justify-between text-sm lg:text-xl">
           <h1>Recent Transactions</h1>
           <NavLink to={"/transactions"}>
