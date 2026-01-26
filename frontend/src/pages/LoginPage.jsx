@@ -9,15 +9,21 @@ import {
   EyeOff,
   TrendingUp,
 } from "lucide-react";
+import {
+  googleAuth,
+  sendOtp,
+  setUpRecaptcha,
+  verifyOtp,
+} from "../firebase/login";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const handlePhoneSubmit = async () => {
     try {
@@ -30,12 +36,12 @@ export default function LoginPage() {
         return;
       }
 
-      // Simulate API call
-      setTimeout(() => {
-        setOtpSent(true);
-        setError("");
-        setOtpLoading(false);
-      }, 1500);
+      setUpRecaptcha();
+      const result = await sendOtp("+91" + phone);
+      console.log(result);
+      setConfirmationResult(result);
+      setOtpLoading(false);
+      setOtpSent(true);
     } catch (err) {
       setError(err.message || "Failed to send OTP");
       setOtpLoading(false);
@@ -44,7 +50,7 @@ export default function LoginPage() {
 
   const handleOtpSubmit = async () => {
     try {
-      setOtpLoading(false);
+      setOtpLoading(true);
       setError("");
 
       if (!otp || otp.length !== 6) {
@@ -53,11 +59,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Simulate API call
-      setTimeout(() => {
-        setError("");
-        setOtpLoading(false);
-      }, 1500);
+      await verifyOtp(confirmationResult, otp);
+      setOtpLoading(false);
     } catch (err) {
       setError(err.message || "Invalid OTP");
       setOtpLoading(false);
@@ -68,11 +71,8 @@ export default function LoginPage() {
     try {
       setGoogleLoading(true);
       setError("");
-
-      // Simulate API call
-      setTimeout(() => {
-        setGoogleLoading(true);
-      }, 1500);
+      await googleAuth();
+      setGoogleLoading(false);
     } catch (err) {
       setError(err.message || "Google login failed");
       setGoogleLoading(true);
@@ -157,6 +157,7 @@ export default function LoginPage() {
                   </>
                 )}
               </button>
+              <div id="recaptcha-container"></div>
             </>
           ) : (
             <>
@@ -190,10 +191,10 @@ export default function LoginPage() {
               {/* Verify OTP Button */}
               <button
                 onClick={handleOtpSubmit}
-                disabled={loading}
+                disabled={otpLoading}
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
               >
-                {loading ? (
+                {otpLoading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
                     Verifying...
