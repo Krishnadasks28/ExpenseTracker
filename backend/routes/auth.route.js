@@ -4,7 +4,6 @@ import { register } from "../controller/auth.controller.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/verifyUser", verifyUser, register);
+authRouter.post("/createUser", register);
 
-
-export default authRouter
+export default authRouter;
