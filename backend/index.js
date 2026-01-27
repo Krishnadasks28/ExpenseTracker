@@ -1,9 +1,8 @@
+import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-
-import { configDotenv } from "dotenv";
-configDotenv();
 
 import connectDB from "./config/db.js";
 import errorHandler from "./middlewares/error.middleware.js";
@@ -22,7 +21,7 @@ app.use(
   cors({
     origin: "http://localhost:5137",
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

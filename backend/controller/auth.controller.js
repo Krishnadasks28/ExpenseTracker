@@ -1,17 +1,15 @@
 import jwt from "jsonwebtoken";
 import user from "../models/user.model.js";
-import admin from "firebase-admin";
+import admin from "../config/firebaseAdmin.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
 export const register = asyncHandler(async (req, res) => {
   const idToken = req.headers.authorization?.split(" ")[1];
-
   if (!idToken) {
     return res.status(404).json({ message: "Token missing" });
   }
 
   const decoded = await admin.auth().verifyIdToken(idToken);
-
   const {
     uid,
     phone_number,

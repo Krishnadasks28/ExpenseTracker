@@ -34,11 +34,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    role: {
-      type: String,
-      enum: ["User", "Admin"],
-      default: "User",
-    },
     currency: {
       type: String,
       default: "INR",
@@ -48,7 +43,7 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const user = mongoose.model("user", userSchema);
