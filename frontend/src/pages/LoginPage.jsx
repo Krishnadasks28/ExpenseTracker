@@ -15,6 +15,7 @@ import {
   setUpRecaptcha,
   verifyOtp,
 } from "../firebase/login";
+import { createUser } from "../api/auth.api";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");

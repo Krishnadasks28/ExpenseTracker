@@ -8,6 +8,11 @@ import Accounts from "./pages/Accounts";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import LoginPage from "./pages/LoginPage";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/config";
+import { createUser } from "./api/auth.api";
+import ProtectedRoute from "./components/route/ProtectedRoute";
 
 // Main layout with navbar and sidebar
 function MainLayout() {
@@ -32,17 +37,33 @@ function AuthLayout() {
 }
 
 function App() {
+  useEffect(() => {
+    const unSub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // user backend login
+        const id = await user.getIdToken();
+        const res = await createUser(id);
+        // save user to context
+      } else {
+        // logout user from backend
+      }
+    });
+    return () => unSub(); //listener cleanup
+  }, []);
+
   return (
     <>
       <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/accounts" element={<Accounts />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Navigate to={"/dashboard"} replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/accounts" element={<Accounts />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />

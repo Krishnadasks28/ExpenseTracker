@@ -9,12 +9,7 @@ import { auth } from "./config";
 // Google signin
 const provider = new GoogleAuthProvider();
 export const googleAuth = async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    console.log(result);
-  } catch (err) {
-    console.log("Firebase error : ", err);
-  }
+  await signInWithPopup(auth, provider);
 };
 
 // signin with phone number
@@ -41,6 +36,7 @@ export const verifyOtp = async (confirmationResult, otp) => {
   try {
     const result = await confirmationResult.confirm(otp);
     alert("user logged in");
+    // add result error check
     console.log(result);
   } catch (err) {
     console.log("Otp verification error : ", err);
