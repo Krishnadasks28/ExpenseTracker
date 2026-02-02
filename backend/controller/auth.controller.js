@@ -43,7 +43,13 @@ export const register = asyncHandler(async (req, res) => {
   const token = jwt.sign({ userId: currentUser._id }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
+  const responseData = {
+    name: currentUser.name,
+    email: currentUser.email,
+    phone_number: currentUser.phone_number,
+    avatar: currentUser.avatar,
+  };
 
   res.cookie("token", token, { httpOnly: true });
-  res.status(200).json({ user: currentUser });
+  res.status(200).json({ user: responseData });
 });

@@ -13,6 +13,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/config";
 import { createUser } from "./api/auth.api";
 import ProtectedRoute from "./components/route/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
 
 // Main layout with navbar and sidebar
 function MainLayout() {
@@ -29,21 +30,28 @@ function MainLayout() {
 
 // Login layout (no navbar/sidebar)
 function AuthLayout() {
-  return (
-    <main>
-      <Outlet />
-    </main>
-  );
+  const { user } = useAuth();
+  if (user)
+    return (
+      <main>
+        <Outlet />
+      </main>
+    );
+  else return <Navigate to={"/dashboard"} replace />;
 }
 
 function App() {
+  const { setUser, setLoading } = useAuth();
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // user backend login
         const id = await user.getIdToken();
         const res = await createUser(id);
-        // save user to context
+        const data = await res.json();
+        setUser(data.user);
+        console.log(data.user);
+        setLoading(false);
       } else {
         // logout user from backend
       }
