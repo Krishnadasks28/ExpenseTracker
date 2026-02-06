@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { User, Mail, Phone, Camera, LogOut, AlertTriangle } from "lucide-react";
+import { logoutUser } from "../api/auth.api";
 
 export default function Settings() {
   const [formData, setFormData] = useState({
@@ -40,7 +41,8 @@ export default function Settings() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logoutUser();
     alert("Logged out successfully");
     // TODO: Clear session and redirect to login
   };

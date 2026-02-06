@@ -31,13 +31,13 @@ function MainLayout() {
 // Login layout (no navbar/sidebar)
 function AuthLayout() {
   const { user } = useAuth();
-  if (user)
+  if (user) return <Navigate to={"/dashboard"} replace />;
+  else
     return (
       <main>
         <Outlet />
       </main>
     );
-  else return <Navigate to={"/dashboard"} replace />;
 }
 
 function App() {
@@ -47,13 +47,15 @@ function App() {
       if (user) {
         // user backend login
         const id = await user.getIdToken();
+        console.log("Firebase id :", id);
         const res = await createUser(id);
         const data = await res.json();
         setUser(data.user);
         console.log(data.user);
         setLoading(false);
       } else {
-        // logout user from backend
+        setUser(null);
+        setLoading(false);
       }
     });
     return () => unSub(); //listener cleanup
