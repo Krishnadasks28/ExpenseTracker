@@ -9,8 +9,8 @@ import {
 import {
   createTransactionValidator,
   updateTransactionValidator,
-  validateTransaction,
 } from "../validators/transactionValidator.js";
+import { validate } from "../validators/validate.js";
 
 const transactionRouter = express.Router();
 
@@ -21,21 +21,21 @@ transactionRouter.post(
   verifyUser,
   createTransactionValidator,
   validateTransaction,
-  addTransaction
+  addTransaction,
 );
 
 transactionRouter.put(
   "/updateTransaction/:id",
   verifyUser,
   updateTransactionValidator,
-  validateTransaction,
-  updateTransaction
+  validate,
+  updateTransaction,
 );
 
 transactionRouter.delete(
   "/deleteTransaction/:id",
   verifyUser,
-  deleteTransaction
+  deleteTransaction,
 );
 
 export default transactionRouter;

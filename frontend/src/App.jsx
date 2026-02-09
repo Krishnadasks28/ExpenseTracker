@@ -13,7 +13,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/config";
 import { createUser } from "./api/auth.api";
 import ProtectedRoute from "./components/route/ProtectedRoute";
-import { useAuth } from "./context/AuthContext";
+import { getCategories } from "./api/categories.api";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setUser } from "./redux/slices/userReducer";
+import { setCategory } from "./redux/slices/categorySlice";
 
 // Main layout with navbar and sidebar
 function MainLayout() {
@@ -30,7 +33,7 @@ function MainLayout() {
 
 // Login layout (no navbar/sidebar)
 function AuthLayout() {
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.user);
   if (user) return <Navigate to={"/dashboard"} replace />;
   else
     return (
@@ -41,21 +44,26 @@ function AuthLayout() {
 }
 
 function App() {
-  const { setUser, setLoading } = useAuth();
+  const dispatch = useDispatch();
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, async (user) => {
+      // implement backend session checking
+      // call createUser api only if session is expired
+
       if (user) {
         // user backend login
         const id = await user.getIdToken();
-        console.log("Firebase id :", id);
         const res = await createUser(id);
         const data = await res.json();
-        setUser(data.user);
-        console.log(data.user);
-        setLoading(false);
+        dispatch(setUser(data.user));
+        // fetch categories
+
+        const response = await getCategories();
+        const categoryList = await response.json();
+        dispatch(setCategory(categoryList));
       } else {
-        setUser(null);
-        setLoading(false);
+        dispatch(setUser(null));
+        dispatch(setLoading(false));
       }
     });
     return () => unSub(); //listener cleanup

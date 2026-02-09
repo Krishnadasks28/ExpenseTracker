@@ -7,4 +7,6 @@ authRouter.post("/createUser", register);
 
 authRouter.post("/logout", clearSession);
 
+// create route for checking session
+
 export default authRouter;

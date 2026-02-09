@@ -1,75 +1,12 @@
-import React, { useState } from "react";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  UtensilsCrossed,
-  Home,
-  Car,
-  ShoppingCart,
-  Film,
-  Heart,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
+import { getCategories } from "../api/categories.api";
+import { useSelector } from "react-redux";
 
 export default function Categories() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: "Food & Dining",
-      icon: UtensilsCrossed,
-      type: "expense",
-      transactions: 24,
-      bgColor: "bg-yellow-100",
-      iconColor: "text-yellow-600",
-    },
-    {
-      id: 2,
-      name: "Housing",
-      icon: Home,
-      type: "expense",
-      transactions: 12,
-      bgColor: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-    {
-      id: 3,
-      name: "Transportation",
-      icon: Car,
-      type: "expense",
-      transactions: 18,
-      bgColor: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      id: 4,
-      name: "Shopping",
-      icon: ShoppingCart,
-      type: "expense",
-      transactions: 31,
-      bgColor: "bg-pink-100",
-      iconColor: "text-pink-600",
-    },
-    {
-      id: 5,
-      name: "Entertainment",
-      icon: Film,
-      type: "expense",
-      transactions: 9,
-      bgColor: "bg-cyan-100",
-      iconColor: "text-cyan-600",
-    },
-    {
-      id: 6,
-      name: "Health & Fitness",
-      icon: Heart,
-      type: "expense",
-      transactions: 7,
-      bgColor: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-  ]);
-
+  //fetch categories from redux store
+  const categories = useSelector((state) => state.category);
   const filteredCategories =
     activeFilter === "All"
       ? categories
@@ -112,18 +49,17 @@ export default function Categories() {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 mt-2.5 lg:grid-cols-3 gap-6">
           {filteredCategories.map((category) => {
-            const IconComponent = category.icon;
             return (
               <div
-                key={category.id}
+                key={category._id}
                 className="rounded-xl border-2 border-gray-200 p-6 hover:shadow-lg transition-shadow"
               >
                 {/* Top Section with Icon and Actions */}
                 <div className="flex justify-between items-start mb-4">
                   <div className={`${category.bgColor} rounded-lg p-3 w-fit`}>
-                    <IconComponent
-                      className={`${category.iconColor} w-6 h-6`}
-                    />
+                    <span className={`${category.iconColor} w-6 h-6`}>
+                      {category.icon}
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <button className="p-2 text-gray-400 dark:hover:text-white hover:text-gray-600 transition-colors">
@@ -140,7 +76,9 @@ export default function Categories() {
 
                 {/* Category Type and Transaction Count */}
                 <div className="flex justify-between items-center">
-                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                  <span
+                    className={` ${category.type === "income" ? "text-emerald-500 bg-emerald-100" : "text-red-700 bg-red-100"} px-3 py-1 rounded-full text-sm font-medium`}
+                  >
                     {category.type}
                   </span>
                   <span className="text-gray-600 dark:text-gray-400 text-sm">

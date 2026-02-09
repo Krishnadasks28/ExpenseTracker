@@ -6,13 +6,6 @@ const accountSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    type: {
-      type: String,
-      enum: ["cash", "bank", "upi", "credit_card"],
-      required: true,
-    },
-
     balance: {
       type: Number,
       default: 0,
@@ -24,7 +17,7 @@ const accountSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const account = mongoose.model("account", accountSchema);

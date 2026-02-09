@@ -6,8 +6,8 @@ import {
 } from "../controller/category.controller.js";
 import {
   createCategoryValidator,
-  validate,
 } from "../validators/categoryValidator.js";
+import { validate } from "../validators/validate.js";
 
 const categoryRoute = express.Router();
 

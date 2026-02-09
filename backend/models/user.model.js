@@ -46,5 +46,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+userSchema.index({ firebaseid: 1 });
 const user = mongoose.model("user", userSchema);
 export default user;

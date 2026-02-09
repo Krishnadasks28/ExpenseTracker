@@ -54,6 +54,7 @@ export const register = asyncHandler(async (req, res) => {
   res.status(200).json({ user: responseData });
 });
 
+// logout
 export const clearSession = asyncHandler(async (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ message: "Logged Out" });

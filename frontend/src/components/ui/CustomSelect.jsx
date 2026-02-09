@@ -68,7 +68,7 @@ const CustomSelect = ({
                       className={`w-full rounded-lg flex justify-between items-center text-left px-3 text-sm md:text-lg py-2 transition-colors dark:hover:bg-[oklch(0.2_0_0)] hover:bg-slate-200`}
                     >
                       <p
-                        className={`${option === "Income" ? "text-emerald-500" : option === "Expense" ? "text-red-500" : ""}`}
+                        className={`${option === "income" ? "text-emerald-500" : option === "expense" ? "text-red-500" : ""} first-letter:uppercase`}
                       >
                         {option}
                       </p>

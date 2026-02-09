@@ -8,7 +8,7 @@ const categorySchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["income,expense"],
+      enum: ["income", "expense"],
       required: true,
     },
     user: {
@@ -23,7 +23,7 @@ const categorySchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const category = mongoose.model("category", categorySchema);

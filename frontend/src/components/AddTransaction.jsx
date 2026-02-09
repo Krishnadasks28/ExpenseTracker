@@ -1,14 +1,25 @@
 import { X } from "lucide-react";
 import CustomSelect from "./ui/CustomSelect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const AddTransaction = ({ showModel, setShowModel }) => {
-  const transactionTypes = ["Income", "Expense", "Contra"];
-  const [selectedTransaction, setSelectedTransaction] = useState("Income");
+  const transactionTypes = ["income", "expense", "contra"];
+  const [selectedTransaction, setSelectedTransaction] = useState("income");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedAccount, setSelectedAccount] = useState("Cash");
   const [fromAccount, setFromAccount] = useState("Cash");
   const [toAccount, setToAccount] = useState("SBI");
+
+  const categories = useSelector((state) => state.category);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
+  useEffect(() => {
+    let options = categories
+      .filter((c) => c.type === selectedTransaction)
+      .map((c) => c.name);
+    setCategoryOptions(options);
+  }, [selectedTransaction, categories]);
 
   return (
     <>
@@ -78,7 +89,7 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                       <CustomSelect
                         value={selectedCategory}
                         onChange={setSelectedCategory}
-                        options={["Salary", "Freelance"]}
+                        options={categoryOptions}
                         placeholder="Select category"
                       />
                     </>
@@ -142,12 +153,11 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                   <button className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2">
                     Add Income
                   </button>
-                )
-              :
-              <button className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2">
+                ) : (
+                  <button className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2">
                     Add Transaction
                   </button>
-              }
+                )}
               </div>
             </form>
           </div>
