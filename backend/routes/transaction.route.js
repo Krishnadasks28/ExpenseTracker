@@ -20,7 +20,7 @@ transactionRouter.post(
   "/addTransaction",
   verifyUser,
   createTransactionValidator,
-  validateTransaction,
+  validate,
   addTransaction,
 );
 

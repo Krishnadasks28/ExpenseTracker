@@ -54,6 +54,29 @@ export const register = asyncHandler(async (req, res) => {
   res.status(200).json({ user: responseData });
 });
 
+// session checking api
+export const checkSessionUser = asyncHandler(async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    console.log("no token");
+    return res.json(404).json({ Message: "Not authenticated" });
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const userId = decoded.userId;
+
+  const userData = await user.findOne({ _id: userId });
+  const responseData = {
+    name: userData.name,
+    email: userData.email,
+    phone_number: userData.phone_number,
+    avatar: userData.avatar,
+  };
+
+  res.status(200).json({ user: responseData });
+});
+
 // logout
 export const clearSession = asyncHandler(async (req, res) => {
   res.clearCookie("token");

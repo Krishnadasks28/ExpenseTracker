@@ -11,7 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/config";
-import { createUser } from "./api/auth.api";
+import { createUser, getSessionUser } from "./api/auth.api";
 import ProtectedRoute from "./components/route/ProtectedRoute";
 import { getCategories } from "./api/categories.api";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,22 +45,50 @@ function AuthLayout() {
 
 function App() {
   const dispatch = useDispatch();
+  const checkSession = async () => {
+    try {
+      const response = await getSessionUser();
+      if (response.ok) {
+        const userData = await response.json();
+        dispatch(setUser(userData.user));
+
+        const res = await getCategories();
+        if (res.ok) {
+          const categoryList = await res.json();
+          dispatch(setCategory(categoryList));
+        }
+        return true;
+      }
+    } catch (err) {
+      console.log("error caught: ", err);
+      // alert error
+    }
+    return false;
+  };
+
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, async (user) => {
-      // implement backend session checking
-      // call createUser api only if session is expired
+      // backend session checking
+      const hasSession = await checkSession();
+      if (hasSession) return;
 
+      // call createUser api only when new user or session expired
       if (user) {
-        // user backend login
         const id = await user.getIdToken();
         const res = await createUser(id);
-        const data = await res.json();
-        dispatch(setUser(data.user));
-        // fetch categories
+        if (res.ok) {
+          const data = await res.json();
+          dispatch(setUser(data.user));
+        } else {
+          dispatch(setLoading(false));
+        }
 
+        // fetch categories
         const response = await getCategories();
-        const categoryList = await response.json();
-        dispatch(setCategory(categoryList));
+        if (response.ok) {
+          const categoryList = await response.json();
+          dispatch(setCategory(categoryList));
+        }
       } else {
         dispatch(setUser(null));
         dispatch(setLoading(false));
