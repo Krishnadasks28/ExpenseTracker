@@ -1,7 +1,0 @@
-user backend session checking
-accounts CRUD
-"new category" form
-graphQL
-alert ui
-loading ui
-Display smartInsights

@@ -1,4 +1,0 @@
-session checking api
-create index for requried DBs
-graphQL server and queries
-implement openAI for smartInsights
