@@ -1,8 +1,11 @@
 import express from "express";
-import verifyUser from "../middlewares/auth.middleware";
-import { createAccountsValidator } from "../validators/accountsValidator";
-import { validate } from "../validators/validate";
-import { addNewAccount, getAccounts } from "../controller/accounts.controller";
+import verifyUser from "../middlewares/auth.middleware.js";
+import { createAccountsValidator } from "../validators/accountsValidator.js";
+import { validate } from "../validators/validate.js";
+import {
+  addNewAccount,
+  getAccounts,
+} from "../controller/accounts.controller.js";
 const accountRoute = express.Router();
 
 // add new account

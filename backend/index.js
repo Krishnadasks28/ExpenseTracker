@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route.js";
 import transactionRouter from "./routes/transaction.route.js";
 import categoryRoute from "./routes/category.route.js";
+import accountRoute from "./routes/account.route.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/transaction", transactionRouter);
 app.use("/api/category", categoryRoute);
+app.use("/api/account", accountRoute);
 
 app.use(errorHandler);
 

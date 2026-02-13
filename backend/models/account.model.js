@@ -10,6 +10,10 @@ const accountSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    notes: {
+      type: String,
+      required: false,
+    },
 
     user: {
       type: mongoose.Schema.Types.ObjectId,

@@ -60,7 +60,7 @@ export const checkSessionUser = asyncHandler(async (req, res) => {
 
   if (!token) {
     console.log("no token");
-    return res.json(404).json({ Message: "Not authenticated" });
+    return res.status(404).json({ Message: "Not authenticated" });
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);

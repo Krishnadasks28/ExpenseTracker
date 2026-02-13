@@ -8,8 +8,12 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import AddAccount from "../components/AddAccount";
+import { useState } from "react";
 
 export default function Accounts() {
+  const [showModel, setShowModel] = useState(false);
+
   const accounts = [
     {
       id: 1,
@@ -67,7 +71,7 @@ export default function Accounts() {
             </p>
           </div>
           <button
-            onClick={() => setTransactionModel(true)}
+            onClick={() => setShowModel(true)}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-1.5 lg:py-2 rounded-lg font-medium transition-colors"
           >
             <Plus size={18} className="h-5 w-5 hidden sm:inline" />
@@ -167,6 +171,7 @@ export default function Accounts() {
           })}
         </div>
       </div>
+      <AddAccount showModel={showModel} setShowModel={setShowModel} />
     </div>
   );
 }
