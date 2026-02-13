@@ -30,7 +30,6 @@ const AddAccount = ({ showModel, setShowModel }) => {
         setShowModel(false);
       } else {
         const response = await res.json();
-        console.log("backend response : ", response);
       }
     } else {
       console.log(err);
@@ -43,7 +42,6 @@ const AddAccount = ({ showModel, setShowModel }) => {
 
     // Validate account name
     if (!accountName.trim()) {
-      console.log("Account error true");
       errors.name = "Account name is required";
     } else if (accountName.trim().length < 3) {
       errors.name = "Account name must be at least 3 characters";
@@ -53,7 +51,6 @@ const AddAccount = ({ showModel, setShowModel }) => {
 
     // Validate balance
     if (balance === "" || balance === null) {
-      console.log("balance error true");
       errors.balance = "Balance is required";
     } else if (isNaN(balance)) {
       errors.balance = "Balance must be a number";
