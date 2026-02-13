@@ -11,6 +11,11 @@ import authRouter from "./routes/auth.route.js";
 import transactionRouter from "./routes/transaction.route.js";
 import categoryRoute from "./routes/category.route.js";
 import accountRoute from "./routes/account.route.js";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@as-integrations/express5";
+import { typeDefs } from "./graphql/schema.js";
+import { resolvers } from "./graphql/resolvers.js";
+import verifyUser from "./middlewares/auth.middleware.js";
 
 const app = express();
 
@@ -36,6 +41,24 @@ app.use("/api/account", accountRoute);
 
 app.use(errorHandler);
 
-// connect database
-connectDB();
-app.listen(8000, () => console.log("server started"));
+// graphql server
+async function startServer() {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+
+  await server.start();
+  app.use(
+    "/graphql",
+    verifyUser,
+    expressMiddleware(server, {
+      context: ({ req }) => ({ userId: req.userId }),
+    }),
+  );
+
+  // connect database
+  connectDB();
+  app.listen(8000, () => console.log("server started"));
+}
+startServer();

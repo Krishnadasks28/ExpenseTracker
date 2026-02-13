@@ -59,7 +59,6 @@ export const checkSessionUser = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
 
   if (!token) {
-    console.log("no token");
     return res.status(404).json({ Message: "Not authenticated" });
   }
 
