@@ -7,57 +7,34 @@ import {
   MoreVertical,
   TrendingDown,
   TrendingUp,
+  Banknote,
+  PiggyBank,
 } from "lucide-react";
 import AddAccount from "../components/AddAccount";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { accountQuery, getData } from "../api/queries.js";
+import { useDispatch, useSelector } from "react-redux";
+import { setAccounts } from "../redux/slices/accountsSlice.js";
 
 export default function Accounts() {
   const [showModel, setShowModel] = useState(false);
+  const accounts = useSelector((state) => state.accounts);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getData(accountQuery);
+        const data = await res.json();
+        if (data?.data?.accounts) {
+          dispatch(setAccounts(data.data.accounts));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  }, []);
 
-  const accounts = [
-    {
-      id: 1,
-      name: "Cash",
-      icon: Wallet,
-      balance: 450.75,
-      transactions: 45,
-      lastTx: { name: "Coffee Shop", amount: -25.5, type: "expense" },
-      iconBg: "bg-teal-100",
-      iconColor: "text-teal-600",
-    },
-    {
-      id: 2,
-      name: "Bank Account",
-      icon: Building2,
-      balance: 8450.0,
-      transactions: 128,
-      lastTx: { name: "Salary Deposit", amount: 3200.0, type: "income" },
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      id: 3,
-      name: "Credit Card",
-      icon: CreditCard,
-      balance: -1250.0,
-      transactions: 67,
-      lastTx: { name: "Online Shopping", amount: -89.99, type: "expense" },
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-    {
-      id: 4,
-      name: "Digital Wallet",
-      icon: Smartphone,
-      balance: 3800.0,
-      transactions: 92,
-      lastTx: { name: "Freelance Payment", amount: 500.0, type: "income" },
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-  ];
-
-  const totalBalance = 11450.75;
+  const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
 
   return (
     <div className="px-3 lg:px-10 min-h-screen w-full">
@@ -103,24 +80,21 @@ export default function Accounts() {
         {/* Accounts Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
           {accounts.map((account) => {
-            const Icon = account.icon;
             const isNegative = account.balance < 0;
-
             return (
               <div
-                key={account.id}
+                key={account.name}
                 className="rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className={`${account.iconBg} p-3 rounded-lg`}>
-                      <Icon size={24} className={account.iconColor} />
-                    </div>
+                    <div className={`p-3 rounded-lg`}>{/* Bank logo */}</div>
                     <div>
                       <h3 className="font-semibold text-lg">{account.name}</h3>
                       <p className="text-xs text-gray-500">
-                        {account.transactions} transactions
+                        20 transactions
+                        {/* set number of transactions */}
                       </p>
                     </div>
                   </div>
@@ -148,18 +122,20 @@ export default function Accounts() {
                   <p className="text-xs text-gray-500 mb-3">Last Transaction</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {account.lastTx.type === "expense" ? (
+                      {Math.random() * 10 > 1 ? (
+                        // last transaction type
                         <TrendingDown size={18} className="text-red-500" />
                       ) : (
                         <TrendingUp size={18} className="text-teal-500" />
                       )}
-                      <span className="text-sm">{account.lastTx.name}</span>
+                      <span className="text-sm">Restaurant</span>
                     </div>
                     <span
-                      className={`font-semibold text-sm ${account.lastTx.type === "expense" ? "text-red-500" : "text-teal-500"}`}
+                      className={`font-semibold text-sm ${Math.random() * 10 > 1 ? "text-red-500" : "text-teal-500"}`}
                     >
-                      {account.lastTx.type === "expense" ? "-" : "+"}$
-                      {Math.abs(account.lastTx.amount).toLocaleString("en-US", {
+                      {/* {Math.random() * 100 > 1 ? "-" : "+"}$ */}
+                      {/* // last transaction type */}
+                      {Math.abs(Math.random() * 1000).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}

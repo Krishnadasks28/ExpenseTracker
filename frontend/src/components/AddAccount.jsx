@@ -1,14 +1,18 @@
 import { X } from "lucide-react";
 import CustomSelect from "./ui/CustomSelect";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addNewAccount } from "../api/accounts.api";
+import { setAccounts } from "../redux/slices/accountsSlice";
+import { accountQuery, getData } from "../api/queries";
 
 const AddAccount = ({ showModel, setShowModel }) => {
   const [accountName, setAccountName] = useState("");
   const [balance, setBalance] = useState(0);
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState({ name: "", balance: "", notes: "" });
+
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +30,16 @@ const AddAccount = ({ showModel, setShowModel }) => {
         setAccountName("");
         setBalance(0);
         setNotes("");
+        const data = await res.json();
+        try {
+          const res = await getData(accountQuery);
+          const data = await res.json();
+          if (data?.data?.accounts) {
+            dispatch(setAccounts(data.data.accounts));
+          }
+        } catch (err) {
+          console.error(err);
+        }
         // alert account added
         setShowModel(false);
       } else {
