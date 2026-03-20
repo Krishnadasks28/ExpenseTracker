@@ -2,7 +2,6 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import account from "../models/account.model.js";
 
 export const addNewAccount = asyncHandler(async (req, res) => {
-  console.log("add account request")
   const { name, balance, notes } = req.body;
   const newAccount = await account.create({
     name,

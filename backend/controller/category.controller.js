@@ -11,15 +11,30 @@ export const getCategories = asyncHandler(async (req, res) => {
 });
 
 export const addCategory = asyncHandler(async (req, res) => {
-  const { name, type, icon, color } = req.body;
+  const { name, type, icon } = req.body;
 
   const newCategory = await category.create({
     name,
     type,
     icon,
-    color,
     user: req.userId,
   });
 
   res.status(200).json(newCategory);
+});
+
+export const deleteCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const categoryToDelete = await category.findOne({
+    _id: id,
+    user: req.userId,
+  });
+
+  if (!categoryToDelete) {
+    return res.status(404).json({ message: "Category not found" });
+  }
+  await category.findByIdAndDelete(id);
+
+  res.status(200).json({ message: "Category deleted successfully" });
 });

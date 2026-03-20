@@ -30,7 +30,6 @@ const AddAccount = ({ showModel, setShowModel }) => {
         setAccountName("");
         setBalance(0);
         setNotes("");
-        const data = await res.json();
         try {
           const res = await getData(accountQuery);
           const data = await res.json();
@@ -44,6 +43,7 @@ const AddAccount = ({ showModel, setShowModel }) => {
         setShowModel(false);
       } else {
         const response = await res.json();
+        // alert error message
       }
     } else {
       console.log(err);

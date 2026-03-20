@@ -4,11 +4,20 @@ import { useState } from "react";
 import CustomSelect from "../components/ui/CustomSelect";
 import TransactionMenu from "../components/TransactionMenu";
 import Pagination from "../components/Pagination";
+import { useSelector } from "react-redux";
 
 const Transactions = () => {
   const [showTransactionModel, setTransactionModel] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState("All");
+
+  const transactions = useSelector((state) => state.transactions);
+  const filteredTransactions = transactions
+    .filter((transaction) => {
+      if (activeFilter === "All") return true;
+      return transaction.type === activeFilter.toLowerCase();
+    })
+    .sort((a, b) => Number(b.date) - Number(a.date));
 
   return (
     <div className="px-3 lg:px-10 min-h-screen w-full">
@@ -66,14 +75,16 @@ const Transactions = () => {
       </div>
 
       <div className="w-full rounded-xl mt-5 shadow-sm border-t border-x border-slate-200 dark:border-b p-4 md:p-8">
-        <h1 className="text-lg font-medium">10 Transactions</h1>
+        <h1 className="text-lg font-medium">
+          {filteredTransactions.length} Transactions
+        </h1>
 
-        <TransactionMenu />
+        <TransactionMenu transactions={filteredTransactions} />
       </div>
 
       <div>
         <Pagination
-          totalPages={10}
+          totalPages={Math.ceil(filteredTransactions.length / 5)}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />

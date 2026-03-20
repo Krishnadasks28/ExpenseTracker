@@ -10,20 +10,22 @@ export const createTransactionValidator = [
   body("type")
     .notEmpty()
     .withMessage("Transaction type is required")
-    .isIn(["income", "expense"])
-    .withMessage("Type must be income or expense"),
+    .isIn(["income", "expense","contra"])
+    .withMessage("Type must be income or expense or contra"),
 
   body("category")
-    .notEmpty()
-    .withMessage("Category is required")
+    .optional()
     .isMongoId()
     .withMessage("Invalid categoryId"),
 
-  body("account")
-    .notEmpty()
-    .withMessage("account is required")
+  body("account").optional().isMongoId().withMessage("Invalid account id"),
+
+  body("fromAccount")
+    .optional()
     .isMongoId()
-    .withMessage("Invalid account id"),
+    .withMessage("Invalid fromAccount id"),
+
+  body("toAccount").optional().isMongoId().withMessage("Invalid toAccount id"),
 
   body("description")
     .optional({ checkFalsy: true })

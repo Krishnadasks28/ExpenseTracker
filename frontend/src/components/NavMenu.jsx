@@ -1,4 +1,4 @@
-import { Bell, UserCircle } from "lucide-react";
+import { UserCircle } from "lucide-react";
 import DarkModeToggle from "./DarkModeToggle";
 
 function NavMenu({ className }) {
@@ -6,7 +6,6 @@ function NavMenu({ className }) {
     <>
       <div className={className}>
         <DarkModeToggle />
-        <Bell />
         <UserCircle />
       </div>
     </>

@@ -10,8 +10,11 @@ const categorySlice = createSlice({
     addCategory: (state, action) => {
       state.push(action.payload);
     },
+    removeCategory: (state, action) => {
+      return state.filter((category) => category._id !== action.payload);
+    },
   },
 });
 
-export const { setCategory, addCategory } = categorySlice.actions;
+export const { setCategory, addCategory, removeCategory } = categorySlice.actions;
 export default categorySlice.reducer;

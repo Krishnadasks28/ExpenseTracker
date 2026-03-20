@@ -15,10 +15,12 @@ import { useEffect, useState } from "react";
 import { accountQuery, getData } from "../api/queries.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setAccounts } from "../redux/slices/accountsSlice.js";
+import { calculateTotalTransactions } from "../utils/transactions.js";
 
 export default function Accounts() {
   const [showModel, setShowModel] = useState(false);
   const accounts = useSelector((state) => state.accounts);
+  const transactions = useSelector((state) => state.transactions);
   const dispatch = useDispatch();
   useEffect(() => {
     (async () => {
@@ -93,7 +95,8 @@ export default function Accounts() {
                     <div>
                       <h3 className="font-semibold text-lg">{account.name}</h3>
                       <p className="text-xs text-gray-500">
-                        20 transactions
+                        {calculateTotalTransactions(transactions, account._id)}{" "}
+                        transactions
                         {/* set number of transactions */}
                       </p>
                     </div>

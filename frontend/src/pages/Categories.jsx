@@ -1,16 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
-import { getCategories } from "../api/categories.api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import AddCategory from "../components/AddCategory";
+import { deleteCategory } from "../api/categories.api";
+import { removeCategory } from "../redux/slices/categorySlice";
 
 export default function Categories() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [showModel, setShowModel] = useState(false);
+  const dispatch = useDispatch();
+
   //fetch categories from redux store
   const categories = useSelector((state) => state.category);
   const filteredCategories =
     activeFilter === "All"
       ? categories
       : categories.filter((cat) => cat.type === activeFilter.toLowerCase());
+
+  const deleteCategoryHandler = async (categoryId) => {
+    try {
+      const response = await deleteCategory(categoryId);
+      if (response.ok) {
+        // Optionally, you can dispatch an action to remove the category from the Redux store
+        dispatch(removeCategory(categoryId));
+        alert("Category deleted successfully");
+      } else {
+        alert("Failed to delete category");
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("An error occurred while deleting the category");
+    }
+  };
 
   return (
     <div className="min-h-screen px-3 lg:px-10">
@@ -23,7 +44,10 @@ export default function Categories() {
               Manage your transaction categories
             </p>
           </div>
-          <button className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-2 rounded-lg font-medium transition-colors">
+          <button
+            onClick={() => setShowModel(true)}
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-2 rounded-lg font-medium transition-colors"
+          >
             <Plus size={18} className="h-5 w-5 hidden sm:inline" />
             Add Category
           </button>
@@ -56,16 +80,17 @@ export default function Categories() {
               >
                 {/* Top Section with Icon and Actions */}
                 <div className="flex justify-between items-start mb-4">
-                  <div className={`${category.bgColor} rounded-lg p-3 w-fit`}>
-                    <span className={`${category.iconColor} w-6 h-6`}>
-                      {category.icon}
-                    </span>
+                  <div className={`${category.bgColor} rounded-lg w-fit`}>
+                    <span className={`text-3xl`}>{category.icon}</span>
                   </div>
                   <div className="flex gap-2">
                     <button className="p-2 text-gray-400 dark:hover:text-white hover:text-gray-600 transition-colors">
                       <Edit2 size={18} />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                    <button
+                      onClick={() => deleteCategoryHandler(category._id)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </div>
@@ -90,6 +115,7 @@ export default function Categories() {
           })}
         </div>
       </div>
+      <AddCategory showModel={showModel} setShowModel={setShowModel} />
     </div>
   );
 }

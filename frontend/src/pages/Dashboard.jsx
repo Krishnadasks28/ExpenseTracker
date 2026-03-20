@@ -20,7 +20,8 @@ import {
 } from "recharts";
 import TransactionMenu from "../components/TransactionMenu";
 import AddTransaction from "../components/AddTransaction";
-import { useState } from "react";
+import { use, useState } from "react";
+import { useSelector } from "react-redux";
 
 function Dashboard() {
   const monthlyData = [
@@ -33,7 +34,13 @@ function Dashboard() {
   ];
 
   const [showTransactionModel, setTransactionModel] = useState(false);
-
+  const transactions = useSelector((state) => state.transactions);
+  const accounts = useSelector((state) => state.accounts);
+  const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+  let recentTransactions = [];
+  if (transactions.length > 0) {
+    recentTransactions = transactions.slice(0, 5);
+  }
   return (
     <div className="px-2.5 lg:px-10 min-h-screen w-full">
       <div className="flex justify-between items-center">
@@ -65,7 +72,12 @@ function Dashboard() {
             <Wallet className=" text-blue-500" />
           </div>
 
-          <h1 className="text-3xl xl:text-4xl font-semibold">$12,450</h1>
+          <h1 className="text-3xl xl:text-4xl font-semibold">
+            {totalBalance.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </h1>
           <p className="xl:flex gap-3 text-slate-500 dark:text-slate-400 items-center text-sm xl:text-lg text-muted-foreground mt-1">
             <span className="text-emerald-600 flex items-center gap-1">
               <ArrowUpRight className="h-5 w-5" />
@@ -135,8 +147,8 @@ function Dashboard() {
               <YAxis className="text-xs" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  backgroundColor: "#fff",
+                  border: "1px solid #e5e7eb",
                   borderRadius: "8px",
                 }}
               />
@@ -183,7 +195,7 @@ function Dashboard() {
             </span>
           </NavLink>
         </div>
-        <TransactionMenu />
+        <TransactionMenu transactions={recentTransactions} />
       </div>
       <AddTransaction
         showModel={showTransactionModel}

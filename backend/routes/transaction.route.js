@@ -14,8 +14,6 @@ import { validate } from "../validators/validate.js";
 
 const transactionRouter = express.Router();
 
-transactionRouter.get("/getTransactions", verifyUser, getTransactions);
-
 transactionRouter.post(
   "/addTransaction",
   verifyUser,
