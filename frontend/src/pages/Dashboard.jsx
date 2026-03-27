@@ -22,21 +22,75 @@ import TransactionMenu from "../components/TransactionMenu";
 import AddTransaction from "../components/AddTransaction";
 import { use, useState } from "react";
 import { useSelector } from "react-redux";
+import { getBalanceForMonth, useReportsData } from "../utils/reportsData";
 
 function Dashboard() {
-  const monthlyData = [
-    { month: "Jan", income: 4500, expense: 3200 },
-    { month: "Feb", income: 5200, expense: 3800 },
-    { month: "Mar", income: 4800, expense: 3500 },
-    { month: "Apr", income: 5500, expense: 4100 },
-    { month: "May", income: 6000, expense: 4500 },
-    { month: "Jun", income: 5800, expense: 4200 },
-  ];
+  const transactionsData = useSelector((state) => state.transactions);
+  // fetch total monthly income, total monthly expenses, and change in income and expenses compared to the previous month in percentage from transactionsData for displaying in the report section
+  const { getMonthlyIncome, getMonthlyExpenses, getChangeInPercentage } =
+    useReportsData();
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const currentMonthIncome = getMonthlyIncome(currentMonth, currentYear);
+  const currentMonthExpenses = getMonthlyExpenses(currentMonth, currentYear);
+  const previousMonthIncome = getMonthlyIncome(previousMonth, previousYear);
+  const previousMonthExpenses = getMonthlyExpenses(previousMonth, previousYear);
+  const incomeChange = getChangeInPercentage(
+    currentMonthIncome,
+    previousMonthIncome,
+  );
+  const expenseChange = getChangeInPercentage(
+    currentMonthExpenses,
+    previousMonthExpenses,
+  );
+  // monthlyData of current year only till the current month from transactionsData for displaying in the chart
+  // the monthlydata should only display the data of last six months
+
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const month = new Date(currentYear, currentMonth - i, 1).toLocaleString(
+      "en-US",
+      { month: "short" },
+    );
+    const income = transactionsData
+      .filter(
+        (t) =>
+          t.type === "income" &&
+          new Date(Number(t.date)).getMonth() === currentMonth - i &&
+          new Date(Number(t.date)).getFullYear() === currentYear,
+      )
+      .reduce((acc, curr) => acc + curr.amount, 0);
+    const expense = transactionsData
+      .filter(
+        (t) =>
+          t.type === "expense" &&
+          new Date(Number(t.date)).getMonth() === currentMonth - i &&
+          new Date(Number(t.date)).getFullYear() === currentYear,
+      )
+      .reduce((acc, curr) => acc + curr.amount, 0);
+    monthlyData.push({ month, income, expense });
+  }
 
   const [showTransactionModel, setTransactionModel] = useState(false);
   const transactions = useSelector((state) => state.transactions);
   const accounts = useSelector((state) => state.accounts);
-  const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+  const totalBalance = accounts.reduce(
+    (sum, acc) => sum + (Number(acc.balance) || 0),
+    0,
+  );
+  const previousMonthBalance = getBalanceForMonth(
+    accounts,
+    transactions,
+    previousMonth,
+    previousYear,
+  );
+  const balanceChange = getChangeInPercentage(
+    totalBalance,
+    previousMonthBalance,
+  );
+
   let recentTransactions = [];
   if (transactions.length > 0) {
     recentTransactions = transactions.slice(0, 5);
@@ -79,9 +133,11 @@ function Dashboard() {
             })}
           </h1>
           <p className="xl:flex gap-3 text-slate-500 dark:text-slate-400 items-center text-sm xl:text-lg text-muted-foreground mt-1">
+            {/* total balance difference in percentage from last month */}
             <span className="text-emerald-600 flex items-center gap-1">
               <ArrowUpRight className="h-5 w-5" />
-              +12.5%
+              {balanceChange > 0 ? "+" : ""}
+              {Math.abs(balanceChange).toFixed(2)}%
             </span>
             from last month
           </p>
@@ -92,18 +148,34 @@ function Dashboard() {
         <div className="py-4 px-6 sm:p-8 rounded-2xl shadow-sm border-t dark:border-b border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
-              Total Income
+              Total Income (
+              {new Date(currentYear, currentMonth).toLocaleString("en-US", {
+                month: "short",
+              })}
+              )
             </h4>
             <TrendingUp className=" text-emerald-500" />
           </div>
 
           <h1 className="text-3xl xl:text-4xl font-semibold text-emerald-500">
-            $6,800
+            {currentMonthIncome.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </h1>
           <p className="xl:flex gap-3 text-slate-500 dark:text-slate-400 items-center text-sm xl:text-lg text-muted-foreground mt-1">
-            <span className="text-emerald-600 flex items-center gap-1">
-              <ArrowUpRight className="h-5 w-5" />
-              +8.2%
+            <span
+              className={`flex items-center gap-1 ${
+                incomeChange > 0 ? "text-emerald-600" : "text-red-600"
+              }`}
+            >
+              {incomeChange > 0 ? (
+                <ArrowUpRight className="h-5 w-5" />
+              ) : (
+                <ArrowDownRight className="h-5 w-5" />
+              )}
+              {incomeChange > 0 ? "+" : ""}
+              {incomeChange.toFixed(2)}%
             </span>
             from last month
           </p>
@@ -114,18 +186,34 @@ function Dashboard() {
         <div className="py-4 px-6 sm:p-8  rounded-2xl shadow-sm border-t dark:border-b border-x border-slate-200 w-full">
           <div className="flex gap-12 mb-5 justify-between ">
             <h4 className="text-lg font-medium text-slate-700 dark:text-slate-400 whitespace-nowrap ">
-              Total Expense
+              Total Expense (
+              {new Date(currentYear, currentMonth).toLocaleString("en-US", {
+                month: "short",
+              })}
+              )
             </h4>
             <TrendingDown className=" text-red-500" />
           </div>
 
           <h1 className="text-3xl xl:text-4xl font-semibold text-red-500">
-            $-4,350
+            {currentMonthExpenses.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </h1>
           <p className="xl:flex gap-3 text-slate-500 dark:text-slate-400 items-center text-sm xl:text-lg text-muted-foreground mt-1">
-            <span className="text-red-600 flex items-center gap-1">
-              <ArrowDownRight className="h-5 w-5" />
-              +4.5%
+            <span
+              className={`flex items-center gap-1 ${
+                expenseChange > 0 ? "text-red-600" : "text-emerald-600"
+              }`}
+            >
+              {expenseChange > 0 ? (
+                <ArrowUpRight className="h-5 w-5" />
+              ) : (
+                <ArrowDownRight className="h-5 w-5" />
+              )}
+              {expenseChange > 0 ? "+" : ""}
+              {expenseChange.toFixed(2)}%
             </span>
             from last month
           </p>

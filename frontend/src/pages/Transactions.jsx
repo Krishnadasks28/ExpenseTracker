@@ -1,6 +1,6 @@
 import { Download, Filter, Plus } from "lucide-react";
 import AddTransaction from "../components/AddTransaction";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomSelect from "../components/ui/CustomSelect";
 import TransactionMenu from "../components/TransactionMenu";
 import Pagination from "../components/Pagination";
@@ -10,14 +10,47 @@ const Transactions = () => {
   const [showTransactionModel, setTransactionModel] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [activeCategory, setActiveCategory] = useState(null);
 
   const transactions = useSelector((state) => state.transactions);
-  const filteredTransactions = transactions
+  const categories = useSelector((state) => state.category);
+
+  const filteredCategories = categories.filter((category) => {
+    if (activeFilter === "All") return true;
+    return category.type === activeFilter.toLowerCase();
+  });
+
+  useEffect(() => {
+    setActiveCategory(null);
+    setCurrentPage(1);
+  }, [activeFilter]);
+  const processedTransactions = transactions
     .filter((transaction) => {
-      if (activeFilter === "All") return true;
-      return transaction.type === activeFilter.toLowerCase();
+      // type filter
+      if (activeFilter !== "All") {
+        if (transaction.type !== activeFilter.toLowerCase()) return false;
+      }
+
+      // category filter
+      if (activeCategory) {
+        if (!transaction.category) return false;
+        if (
+          transaction.category.name !== activeCategory
+        )
+          return false;
+      }
+
+      return true;
     })
     .sort((a, b) => Number(b.date) - Number(a.date));
+
+  const pageSize = 10; // Number of transactions per page
+
+  // transactions filtration with pagination
+  const paginatedTransactions = processedTransactions.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
     <div className="px-3 lg:px-10 min-h-screen w-full">
@@ -52,12 +85,12 @@ const Transactions = () => {
           <h1 className="font-medium me-3">Filters:</h1>
 
           {/* Filter Tabs */}
-          <div className="flex gap-3">
-            {["All", "Income", "Expense"].map((filter) => (
+          <div className="flex flex-wrap gap-3">
+            {["All", "Income", "Expense","Contra"].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-2 lg:px-4 py-1 lg:py-2 rounded-lg font-medium text-sm lg:text-lg transition-colors ${
+                className={`w-[45%] lg:w-auto px-2 lg:px-4 py-1 lg:py-2 rounded-lg font-medium text-sm lg:text-lg transition-colors ${
                   activeFilter === filter
                     ? "bg-emerald-500 text-white"
                     : "dark:bg-black dark:hover:bg-white dark:text-white dark:hover:text-black bg-white text-gray-700 border border-gray-200 hover:border-gray-300"
@@ -70,21 +103,26 @@ const Transactions = () => {
         </div>
 
         <div className="w-auto">
-          <CustomSelect placeholder="Select a category" />
+          <CustomSelect
+            placeholder="Select a category"
+            options={filteredCategories.map((category) => category.name)}
+            onChange={setActiveCategory}
+            value={activeCategory}
+          />
         </div>
       </div>
 
       <div className="w-full rounded-xl mt-5 shadow-sm border-t border-x border-slate-200 dark:border-b p-4 md:p-8">
         <h1 className="text-lg font-medium">
-          {filteredTransactions.length} Transactions
+          {processedTransactions.length} Transactions
         </h1>
 
-        <TransactionMenu transactions={filteredTransactions} />
+        <TransactionMenu transactions={paginatedTransactions} />
       </div>
 
       <div>
         <Pagination
-          totalPages={Math.ceil(filteredTransactions.length / 5)}
+          totalPages={Math.ceil(processedTransactions.length / pageSize)}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
