@@ -2,11 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const messages = [
-  { text: "Reading your transactions...", limit: 20 },
-  { text: "Sorting income and expenses...", limit: 40 },
-  { text: "Analyzing spending patterns...", limit: 60 },
-  { text: "Comparing income vs expenses...", limit: 80 },
-  { text: "Generating insights...", limit: 100 },
+  { text: "Reading your transactions...", start: 0, end: 25 },
+  { text: "Analyzing spending patterns...", start: 25, end: 50 },
+  { text: "Comparing income vs expenses...", start: 50, end: 80 },
+  { text: "Generating insights...", start: 80, end: 100 },
 ];
 
 export default function Loading() {
@@ -14,11 +13,33 @@ export default function Loading() {
   const [activeMsg, setActiveMsg] = useState(messages[0].text);
 
   useEffect(() => {
-    setProgress(0); // force reset
+    // ✅ FORCE RESET immediately
+    setProgress(0);
+    setActiveMsg(messages[0].text);
+
+    const totalDuration = 2000; // ⏱ 2 seconds
+    const intervalTime = 20;
+    const steps = totalDuration / intervalTime;
+    const increment = 100 / steps;
 
     const interval = setInterval(() => {
-      setProgress((p) => (p >= 100 ? 100 : p + 10));
-    }, 10);
+      setProgress((p) => {
+        let newProgress = p + increment;
+
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+
+        // ✅ update message based on progress
+        const msg = messages.find(
+          (m) => newProgress >= m.start && newProgress < m.end,
+        );
+        if (msg) setActiveMsg(msg.text);
+
+        return newProgress;
+      });
+    }, intervalTime);
 
     return () => clearInterval(interval);
   }, []);
@@ -30,14 +51,13 @@ export default function Loading() {
     <div className="h-screen flex flex-col items-center justify-center bg-neutral-950 text-white">
       {/* CARD */}
       <div className="relative w-80 h-72 bg-neutral-900 rounded-2xl p-6 shadow-xl border border-neutral-800 overflow-hidden">
-        {/* TITLE */}
         <p className="text-sm text-neutral-400 mb-4">
           Analyzing your finances...
         </p>
 
         {/* CHART */}
         <div className="relative h-40">
-          {/* EARNINGS */}
+          {/* BAR */}
           <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between h-full">
             {earnings.map((value, i) => (
               <motion.div
@@ -47,12 +67,12 @@ export default function Loading() {
                 animate={{
                   height: `${(progress / 100) * value}%`,
                 }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
+                transition={{ duration: 0.2 }}
               />
             ))}
           </div>
 
-          {/* SPENDING LINE */}
+          {/* LINE */}
           <svg viewBox="0 0 300 100" className="absolute inset-0 w-full h-full">
             <motion.path
               d={spendingPath}
@@ -60,11 +80,10 @@ export default function Loading() {
               stroke="#f87171"
               strokeWidth="3"
               strokeDasharray="400"
-              strokeDashoffset="400"
               animate={{
                 strokeDashoffset: 400 - (progress / 100) * 400,
               }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0.2 }}
             />
           </svg>
         </div>
@@ -89,7 +108,7 @@ export default function Loading() {
         />
       </div>
 
-      {/* 🔥 DYNAMIC TEXT */}
+      {/* MESSAGE */}
       <div className="mt-6 h-6">
         <AnimatePresence mode="wait">
           <motion.p
@@ -98,23 +117,28 @@ export default function Loading() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           >
             {activeMsg}
           </motion.p>
         </AnimatePresence>
       </div>
 
-      {/* PROGRESS */}
+      {/* PROGRESS BAR */}
       <div className="w-72 h-2 bg-neutral-800 rounded-full mt-3 overflow-hidden">
         <motion.div
-          initial={false}
+          key="progress-bar" // ✅ prevents reverse animation bug
           className="h-full bg-green-400"
+          initial={{ width: "0%" }} // ✅ always start from 0
           animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
         />
       </div>
 
-      <span className="mt-2 text-sm text-neutral-500">{progress}%</span>
+      {/* PERCENT */}
+      <span className="mt-2 text-sm text-neutral-500">
+        {Math.floor(progress)}%
+      </span>
     </div>
   );
 }

@@ -17,9 +17,6 @@ import { getCategories } from "./api/categories.api";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setUser } from "./redux/slices/userReducer";
 import { setCategory } from "./redux/slices/categorySlice";
-import { categoryQuery, getData, transactionQuery } from "./api/queries";
-import { setTransactions } from "./redux/slices/transactionSlice";
-import { setAccounts } from "./redux/slices/accountsSlice";
 import { fetchUserData } from "./utils/userData";
 
 // Main layout with navbar and sidebar
@@ -56,6 +53,14 @@ function App() {
         const userData = await response.json();
         dispatch(setUser(userData.user));
         await fetchUserData(dispatch);
+        const visited = localStorage.getItem("visited");
+        console.log(visited)
+        if (!visited) {
+          // localStorage.setItem("visited", "true");
+          await delay(2000);
+        }
+        dispatch(setLoading(false));
+
         return true;
       }
     } catch (err) {
@@ -119,3 +124,5 @@ function App() {
 }
 
 export default App;
+
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
