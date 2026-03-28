@@ -50,30 +50,37 @@ export const register = asyncHandler(async (req, res) => {
     avatar: currentUser.avatar,
   };
 
-  res.cookie("token", token, { httpOnly: true });
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
   res.status(200).json({ user: responseData });
 });
 
 // session checking api
 export const checkSessionUser = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
 
-  if (!token) {
-    return res.status(404).json({ Message: "Not authenticated" });
+    const userData = await user.findOne({ _id: userId });
+
+    if (!userData) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user: {
+        name: userData.name,
+        email: userData.email,
+        phone_number: userData.phone_number,
+        avatar: userData.avatar,
+      },
+    });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
-
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  const userId = decoded.userId;
-
-  const userData = await user.findOne({ _id: userId });
-  const responseData = {
-    name: userData.name,
-    email: userData.email,
-    phone_number: userData.phone_number,
-    avatar: userData.avatar,
-  };
-
-  res.status(200).json({ user: responseData });
 });
 
 // logout
