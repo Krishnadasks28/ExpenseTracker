@@ -54,16 +54,25 @@ function App() {
         dispatch(setUser(userData.user));
         await fetchUserData(dispatch);
         const visited = localStorage.getItem("visited");
-        console.log(visited)
         if (!visited) {
-          // localStorage.setItem("visited", "true");
+          localStorage.setItem("visited", "true");
           await delay(2000);
         }
         dispatch(setLoading(false));
 
         return true;
       }
+
+      if (response.status === 401) {
+        // 👈 expected case → no session
+        return false;
+      }
+
+      // 👇 unexpected errors
+      console.error("Unexpected response:", response.status);
+      return false;
     } catch (err) {
+      console.log("session check error: ", err);
       console.log("error caught: ", err);
       // alert error
     }
@@ -83,16 +92,16 @@ function App() {
         if (res.ok) {
           const data = await res.json();
           dispatch(setUser(data.user));
-        } else {
-          dispatch(setLoading(false));
         }
+        const visited = localStorage.getItem("visited");
+        if (!visited) {
+          localStorage.setItem("visited", "true");
+          await delay(2000);
+        }
+        dispatch(setLoading(false));
 
-        // fetch categories
-        const response = await getCategories();
-        if (response.ok) {
-          const categoryList = await response.json();
-          dispatch(setCategory(categoryList));
-        }
+        // fetch user data after login or session expiration
+        await fetchUserData(dispatch);
       } else {
         dispatch(setUser(null));
         dispatch(setLoading(false));
