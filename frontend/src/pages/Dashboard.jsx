@@ -46,7 +46,6 @@ function Dashboard() {
     previousMonthExpenses,
   );
   // monthlyData of current year only till the current month from transactionsData for displaying in the chart
-  // the monthlydata should only display the data of last six months
 
   const monthlyData = [];
   for (let i = 5; i >= 0; i--) {

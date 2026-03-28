@@ -57,8 +57,9 @@ async function startServer() {
     }),
   );
 
+  const PORT = process.env.PORT || 8000
   // connect database
   connectDB();
-  app.listen(8000, () => console.log("server started"));
+  app.listen(PORT, () => console.log("server started"));
 }
 startServer();

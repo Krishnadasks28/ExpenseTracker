@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { User, Mail, Phone, Camera, LogOut, AlertTriangle } from "lucide-react";
 import { logoutUser } from "../api/auth.api";
+import { useSelector } from "react-redux";
 
 export default function Settings() {
+  // fetch user data from redux
+  const userData = useSelector((state) => state.user.user);
+  console.log(userData);
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone_number ? userData.phone_number : null,
+    avatar: userData.avatar,
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -73,16 +77,14 @@ export default function Settings() {
           <div className="flex items-center gap-6 pb-8 border-b border-gray-200 mb-8">
             <div className="relative">
               <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center">
-                <User className="text-white" size={48} />
+                <img src={formData.avatar} className=" rounded-full" />
               </div>
               <button className="absolute bottom-0 right-0 bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-full transition-colors">
                 <Camera size={16} />
               </button>
             </div>
             <div>
-              <h3 className="text-2xl font-bold">
-                {formData.firstName} {formData.lastName}
-              </h3>
+              <h3 className="text-2xl font-bold">{formData.name}</h3>
               <p className="text-slate-600 dark:text-slate-400">
                 {formData.email}
               </p>
@@ -92,38 +94,18 @@ export default function Settings() {
           {/* Form Fields */}
           <div className="space-y-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name */}
+              {/* Name */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  First Name
-                </label>
+                <label className="block text-sm font-medium mb-2">Name</label>
                 <div className="relative">
                   <User size={18} className="absolute left-3 top-3" />
                   <input
                     type="text"
-                    name="firstName"
-                    value={formData.firstName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     className="w-full pl-10 pr-4 py-2 border border-slate-100 rounded-lg disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-
-              {/* Last Name */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Last Name
-                </label>
-                <div className="relative">
-                  <User size={18} className="absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-100 rounded-lg disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -147,22 +129,24 @@ export default function Settings() {
               </div>
 
               {/* Phone Number */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone size={18} className="absolute left-3 top-3" />
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-100 rounded-lg disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
+              {formData.phone && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <Phone size={18} className="absolute left-3 top-3" />
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone_number}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      className="w-full pl-10 pr-4 py-2 border border-slate-100 rounded-lg disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
