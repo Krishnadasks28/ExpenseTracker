@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 // these middlewares should be before routes
 app.use(
   cors({
-    origin: "http://localhost:5137",
+    origin: "https://expense-tracker-lyart-zeta.vercel.app",
     credentials: true,
   }),
 );
@@ -57,7 +57,7 @@ async function startServer() {
     }),
   );
 
-  const PORT = process.env.PORT || 8000
+  const PORT = process.env.PORT || 8000;
   // connect database
   connectDB();
   app.listen(PORT, () => console.log("server started"));

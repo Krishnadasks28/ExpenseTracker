@@ -52,7 +52,8 @@ export const register = asyncHandler(async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: true,
+    sameSite: "None",
   });
   res.status(200).json({ user: responseData });
 });
