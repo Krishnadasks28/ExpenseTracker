@@ -1,8 +1,10 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
 
+const API = import.meta.env.VITE_API_URL;
+
 export const createUser = async (id) => {
-  return fetch("/api/auth/createUser", {
+  return fetch(`${API}/api/auth/createUser`, {
     method: "POST",
     headers: {
       authorization: `Bearer ${id}`,
@@ -16,14 +18,14 @@ export const logoutUser = async () => {
   await signOut(auth);
 
   // backend signout
-  await fetch("/api/auth/logout", {
+  await fetch(`${API}/api/auth/logout`, {
     method: "POST",
     credentials: "include",
   });
 };
 
 export const getSessionUser = async () => {
-  return fetch("/api/auth/checkSessionUser", {
+  return fetch(`${API}/api/auth/checkSessionUser`, {
     method: "GET",
     credentials: "include",
   });

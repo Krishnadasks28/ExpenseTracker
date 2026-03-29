@@ -1,5 +1,7 @@
+const API = import.meta.env.VITE_API_URL;
+
 export const addNewAccount = async (data) => {
-  return fetch("/api/account/addNewAccount", {
+  return fetch(`${API}/api/account/addNewAccount`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

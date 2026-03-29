@@ -11,6 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*.local
+coverage
+.cache
+.next
+.nuxt
+out
+build
+public/build   
 
 # Editor directories and files
 .vscode/*

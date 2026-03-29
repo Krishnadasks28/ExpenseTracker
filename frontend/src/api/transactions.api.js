@@ -1,5 +1,7 @@
+const API = import.meta.env.VITE_API_URL;
+
 export const addTransaction = async (transactionData) => {
-  return fetch("/api/transaction/addTransaction", {
+  return fetch(`${API}/api/transaction/addTransaction`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

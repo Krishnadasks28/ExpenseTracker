@@ -5,18 +5,17 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: {
-    proxy: {
-      "/api": {
-        target: "https://expensetracker-backend-uekv.onrender.com/",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/graphql": {
-        target: "https://expensetracker-backend-uekv.onrender.com/",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+  server: {},
 });
+// proxy: {
+//       "/api": {
+//         target: "https://expensetracker-backend-uekv.onrender.com/",
+//         changeOrigin: true,
+//         secure: false,
+//       },
+//       "/graphql": {
+//         target: "https://expensetracker-backend-uekv.onrender.com/",
+//         changeOrigin: true,
+//         secure: false,
+//       },
+//     },

@@ -1,12 +1,13 @@
+const API = import.meta.env.VITE_API_URL;
 export const getCategories = async () => {
-  return fetch("/api/category/getCategories", {
+  return fetch(`${API}/api/category/getCategories`, {
     method: "GET",
     credentials: "include",
   });
 };
 
 export const createCategory = async (categoryData) => {
-  return fetch("/api/category/createCategory", {
+  return fetch(`${API}/api/category/createCategory`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -17,7 +18,7 @@ export const createCategory = async (categoryData) => {
 };
 
 export const deleteCategory = async (categoryId) => {
-  return fetch(`/api/category/deleteCategory/${categoryId}`, {
+  return fetch(`${API}/api/category/deleteCategory/${categoryId}`, {
     method: "DELETE",
     credentials: "include",
   });
