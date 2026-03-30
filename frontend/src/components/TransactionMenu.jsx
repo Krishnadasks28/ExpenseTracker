@@ -1,6 +1,6 @@
-import { IndianRupee, TrendingDown, TrendingUp } from "lucide-react";
+import { Edit2, IndianRupee, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 
-const TransactionMenu = ({ transactions }) => {
+const TransactionMenu = ({ transactions, onEdit, onDelete, onClickItem }) => {
   return (
     <div className="flex flex-col mt-3 gap-2">
       {transactions &&
@@ -8,7 +8,8 @@ const TransactionMenu = ({ transactions }) => {
           return (
             <div
               key={t._id}
-              className="flex justify-between border-0 md:border border-white/30 text-sm lg:text-lg hover:bg-slate-100 hover:border hover:border-slate-200 dark:hover:bg-neutral-900 dark:hover:text-white group rounded-xl py-2 lg:py-4 lg:px-6"
+              onClick={() => onClickItem && onClickItem(t)}
+              className={`flex justify-between border-0 md:border border-white/30 text-sm lg:text-lg hover:bg-slate-100 dark:hover:bg-neutral-900 dark:hover:text-white group rounded-xl py-2 lg:py-4 lg:px-6 relative overflow-hidden ${onClickItem ? 'cursor-pointer' : ''}`}
             >
               <div className="flex gap-3 justify-center items-center">
                 <div
@@ -36,9 +37,15 @@ const TransactionMenu = ({ transactions }) => {
                   </div>
                 </div>
               </div>
-              <div>
+              <div className="flex flex-col items-end gap-1 relative">
+                {(onEdit || onDelete) && (
+                  <div className="flex lg:absolute lg:-top-2 lg:-right-4 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity gap-1 mb-2 lg:mb-0">
+                    {onEdit && <button onClick={(e) => { e.stopPropagation(); onEdit(t); }} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-200 dark:bg-slate-800 rounded-full lg:bg-transparent lg:dark:bg-transparent"><Edit2 size={16} /></button>}
+                    {onDelete && <button onClick={(e) => { e.stopPropagation(); onDelete(t._id); }} className="p-1 text-slate-400 hover:text-rose-500 bg-slate-200 dark:bg-slate-800 rounded-full lg:bg-transparent lg:dark:bg-transparent"><Trash2 size={16} /></button>}
+                  </div>
+                )}
                 <h1
-                  className={`${t.type === "income" ? "text-emerald-500" : t.type === "expense" ? "text-red-500" : "text-blue-500"} font-semibold text-lg lg:text-2xl`}
+                  className={`${t.type === "income" ? "text-emerald-500" : t.type === "expense" ? "text-red-500" : "text-blue-500"} font-semibold text-lg lg:text-2xl mt-auto lg:mt-8`}
                 >
                   <IndianRupee size={20} className="inline" />
                   {Math.abs(t.amount)}.00

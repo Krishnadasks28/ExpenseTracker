@@ -28,12 +28,17 @@ function Sidebar() {
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    return saved === "dark";
+  });
   useEffect(() => {
     if (dark) {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [dark]);
 
@@ -47,6 +52,12 @@ function Sidebar() {
           <Menu />
         </button>
       </div>
+      {showSideBar && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-10 lg:hidden"
+          onClick={() => setShowSideBar(false)}
+        />
+      )}
       <div
         className={`${
           showSideBar ? "left-0" : "-left-96"

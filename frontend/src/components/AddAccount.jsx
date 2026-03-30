@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNewAccount } from "../api/accounts.api";
 import { setAccounts } from "../redux/slices/accountsSlice";
 import { accountQuery, getData } from "../api/queries";
+import toast from "react-hot-toast";
 
 const AddAccount = ({ showModel, setShowModel }) => {
   const [accountName, setAccountName] = useState("");
@@ -39,11 +40,11 @@ const AddAccount = ({ showModel, setShowModel }) => {
         } catch (err) {
           console.error(err);
         }
-        // alert account added
+        toast.success("Account created successfully");
         setShowModel(false);
       } else {
         const response = await res.json();
-        // alert error message
+        toast.error(response.message || "Error creating account");
       }
     } else {
       console.log(err);

@@ -1,4 +1,5 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -53,9 +54,9 @@ function App() {
         const userData = await response.json();
         dispatch(setUser(userData.user));
         await fetchUserData(dispatch);
-        const visited = localStorage.getItem("visited");
+        const visited = sessionStorage.getItem("visited");
         if (!visited) {
-          localStorage.setItem("visited", "true");
+          sessionStorage.setItem("visited", "true");
           await delay(2000);
         }
         dispatch(setLoading(false));
@@ -93,9 +94,9 @@ function App() {
           const data = await res.json();
           dispatch(setUser(data.user));
         }
-        const visited = localStorage.getItem("visited");
+        const visited = sessionStorage.getItem("visited");
         if (!visited) {
-          localStorage.setItem("visited", "true");
+          sessionStorage.setItem("visited", "true");
           await delay(2000);
         }
         dispatch(setLoading(false));
@@ -112,6 +113,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-center" />
       <Routes>
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>

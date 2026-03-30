@@ -2,12 +2,13 @@ import { X } from "lucide-react";
 import CustomSelect from "./ui/CustomSelect";
 import { useEffect, useState } from "react";
 import IconPicker from "./ui/IconPicker";
-import { createCategory } from "../api/categories.api";
+import { createCategory, updateCategory as updateCategoryApi } from "../api/categories.api";
 import { setCategory } from "../redux/slices/categorySlice";
 import { useDispatch } from "react-redux";
 import { categoryQuery, getData } from "../api/queries";
+import toast from "react-hot-toast";
 
-const AddCategory = ({ showModel, setShowModel }) => {
+const AddCategory = ({ showModel, setShowModel, editingCategory = null }) => {
   const categoryTypes = ["income", "expense", "contra"];
   const [errors, setErrors] = useState({ name: "", type: "", icon: "" });
   const dispatch = useDispatch();
@@ -18,6 +19,21 @@ const AddCategory = ({ showModel, setShowModel }) => {
     icon: "",
   });
 
+  useEffect(() => {
+    if (showModel) {
+      if (editingCategory) {
+        setCategoryData({
+          name: editingCategory.name || "",
+          type: editingCategory.type || "",
+          icon: editingCategory.icon || "",
+        });
+      } else {
+        setCategoryData({ name: "", type: "", icon: "" });
+      }
+      setErrors({ name: "", type: "", icon: "" });
+    }
+  }, [showModel, editingCategory]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm();
@@ -27,11 +43,15 @@ const AddCategory = ({ showModel, setShowModel }) => {
     }
 
     try {
-      const res = await createCategory(categoryData);
-      if (res.ok) {
-        // alert category created
+      let res;
+      if (editingCategory) {
+        res = await updateCategoryApi(editingCategory._id, categoryData);
+      } else {
+        res = await createCategory(categoryData);
+      }
 
-        // fetch categories
+      if (res.ok) {
+        toast.success(editingCategory ? "Category updated successfully" : "Category created successfully");
         const response = await getData(categoryQuery);
         if (response.ok) {
           const categoryList = await response.json();
@@ -39,11 +59,11 @@ const AddCategory = ({ showModel, setShowModel }) => {
         }
         setShowModel(false);
       } else {
-        // alert error message
+        toast.error("Failed to save category");
       }
     } catch (err) {
       console.error(err);
-      // alert error message
+      toast.error("An error occurred");
     }
   };
 
@@ -71,10 +91,10 @@ const AddCategory = ({ showModel, setShowModel }) => {
             <div className="flex justify-between">
               <div>
                 <h1 className="font-semibold text-xl md:text-2xl">
-                  New Category
+                  {editingCategory ? "Edit Category" : "New Category"}
                 </h1>
                 <p className="text-gray-400 text-sm md:text-[16px]">
-                  Create a new category for your transactions
+                  {editingCategory ? "Update your transaction category" : "Create a new category for your transactions"}
                 </p>
               </div>
               <div>
@@ -101,7 +121,7 @@ const AddCategory = ({ showModel, setShowModel }) => {
                     setCategoryData({ ...categoryData, name: e.target.value })
                   }
                   placeholder="e.g. Food, Salary, etc."
-                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400"
+                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 border border-transparent dark:text-white"
                 />
               </div>
 
@@ -141,6 +161,7 @@ const AddCategory = ({ showModel, setShowModel }) => {
 
               <div className="flex gap-4 w-full mt-4">
                 <button
+                  type="button"
                   onClick={() => setShowModel(false)}
                   className="cursor-pointer dark:hover:bg-[oklch(0.200_0_0)] hover:bg-slate-200 border border-slate-300 rounded-xl px-4 py-2 w-1/2"
                 >
@@ -151,7 +172,7 @@ const AddCategory = ({ showModel, setShowModel }) => {
                   onClick={handleSubmit}
                   className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2"
                 >
-                  Create Category
+                  {editingCategory ? "Update Category" : "Create Category"}
                 </button>
               </div>
             </form>

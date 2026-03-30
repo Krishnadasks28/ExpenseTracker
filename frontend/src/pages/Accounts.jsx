@@ -83,6 +83,11 @@ export default function Accounts() {
         <div className="grid lg:grid-cols-2 gap-6">
           {accounts.map((account) => {
             const isNegative = account.balance < 0;
+            const accountTransactions = transactions
+              .filter(t => t.account?._id === account._id || t.fromAccount?._id === account._id || t.toAccount?._id === account._id)
+              .sort((a, b) => Number(b.date) - Number(a.date));
+            const lastTransaction = accountTransactions.length > 0 ? accountTransactions[0] : null;
+            
             return (
               <div
                 key={account.name}
@@ -123,27 +128,40 @@ export default function Accounts() {
                 {/* Last Transaction */}
                 <div>
                   <p className="text-xs text-gray-500 mb-3">Last Transaction</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {Math.random() * 10 > 1 ? (
-                        // last transaction type
-                        <TrendingDown size={18} className="text-red-500" />
-                      ) : (
-                        <TrendingUp size={18} className="text-teal-500" />
-                      )}
-                      <span className="text-sm">Restaurant</span>
+                  {lastTransaction ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {lastTransaction.type === 'expense' ? (
+                          <TrendingDown size={18} className="text-red-500" />
+                        ) : lastTransaction.type === 'income' ? (
+                          <TrendingUp size={18} className="text-teal-500" />
+                        ) : (
+                          // Contra
+                          <TrendingUp size={18} className="text-blue-500" /> 
+                        )}
+                        <span className="text-sm">
+                          {lastTransaction.category?.name || "Transfer"}
+                        </span>
+                      </div>
+                      <span
+                        className={`font-semibold text-sm ${
+                          lastTransaction.type === 'expense' 
+                            ? "text-red-500" 
+                            : lastTransaction.type === 'income' 
+                              ? "text-teal-500" 
+                              : "text-blue-500"
+                        }`}
+                      >
+                        {lastTransaction.type === 'expense' ? "-" : "+"}$
+                        {Math.abs(lastTransaction.amount).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
                     </div>
-                    <span
-                      className={`font-semibold text-sm ${Math.random() * 10 > 1 ? "text-red-500" : "text-teal-500"}`}
-                    >
-                      {/* {Math.random() * 100 > 1 ? "-" : "+"}$ */}
-                      {/* // last transaction type */}
-                      {Math.abs(Math.random() * 1000).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">No transactions</p>
+                  )}
                 </div>
               </div>
             );

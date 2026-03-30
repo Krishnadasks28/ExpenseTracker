@@ -23,3 +23,14 @@ export const deleteCategory = async (categoryId) => {
     credentials: "include",
   });
 };
+
+export const updateCategory = async (categoryId, categoryData) => {
+  return fetch(`${API}/api/category/updateCategory/${categoryId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(categoryData),
+  });
+};

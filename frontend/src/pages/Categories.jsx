@@ -4,10 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import AddCategory from "../components/AddCategory";
 import { deleteCategory } from "../api/categories.api";
 import { removeCategory } from "../redux/slices/categorySlice";
+import ConfirmModal from "../components/ConfirmModal";
+import toast from "react-hot-toast";
 
 export default function Categories() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showModel, setShowModel] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const dispatch = useDispatch();
 
   //fetch categories from redux store
@@ -18,19 +22,21 @@ export default function Categories() {
       : categories.filter((cat) => cat.type === activeFilter.toLowerCase());
 
   const deleteCategoryHandler = async (categoryId) => {
-    try {
-      const response = await deleteCategory(categoryId);
-      if (response.ok) {
-        // Optionally, you can dispatch an action to remove the category from the Redux store
+    toast.promise(
+      deleteCategory(categoryId).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to delete category");
+        }
         dispatch(removeCategory(categoryId));
-        alert("Category deleted successfully");
-      } else {
-        alert("Failed to delete category");
+        return data.message;
+      }),
+      {
+        loading: 'Deleting category...',
+        success: 'Category deleted successfully!',
+        error: (err) => err.message,
       }
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      alert("An error occurred while deleting the category");
-    }
+    );
   };
 
   return (
@@ -45,7 +51,10 @@ export default function Categories() {
             </p>
           </div>
           <button
-            onClick={() => setShowModel(true)}
+            onClick={() => {
+              setEditingCategory(null);
+              setShowModel(true);
+            }}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-2 rounded-lg font-medium transition-colors"
           >
             <Plus size={18} className="h-5 w-5 hidden sm:inline" />
@@ -84,11 +93,17 @@ export default function Categories() {
                     <span className={`text-3xl`}>{category.icon}</span>
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-2 text-gray-400 dark:hover:text-white hover:text-gray-600 transition-colors">
+                    <button 
+                      onClick={() => {
+                        setEditingCategory(category);
+                        setShowModel(true);
+                      }}
+                      className="p-2 text-gray-400 dark:hover:text-white hover:text-gray-600 transition-colors"
+                    >
                       <Edit2 size={18} />
                     </button>
                     <button
-                      onClick={() => deleteCategoryHandler(category._id)}
+                      onClick={() => setDeleteConfirmId(category._id)}
                       className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                     >
                       <Trash2 size={18} />
@@ -115,7 +130,18 @@ export default function Categories() {
           })}
         </div>
       </div>
-      <AddCategory showModel={showModel} setShowModel={setShowModel} />
+      <AddCategory 
+        showModel={showModel} 
+        setShowModel={setShowModel} 
+        editingCategory={editingCategory}
+      />
+      <ConfirmModal 
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => deleteCategoryHandler(deleteConfirmId)}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This cannot be undone."
+      />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Download, TrendingUp, AlertCircle } from "lucide-react";
+import { useSelector } from "react-redux";
+import { exportReportsToExcel } from "../utils/exportExcel";
 import {
   LineChart,
   Line,
@@ -17,37 +19,8 @@ import {
 } from "recharts";
 import CustomSelect from "../components/ui/CustomSelect";
 
-const spendingTrendData = [
-  { month: "Jul", spending: 3800 },
-  { month: "Aug", spending: 4200 },
-  { month: "Sep", spending: 3500 },
-  { month: "Oct", spending: 4100 },
-  { month: "Nov", spending: 3900 },
-  { month: "Dec", spending: 4500 },
-  { month: "Jan", spending: 4300 },
-];
-
-const incomeVsExpenseData = [
-  { month: "Jul", income: 5100, expense: 3800, savings: 1300 },
-  { month: "Aug", income: 4800, expense: 4200, savings: 600 },
-  { month: "Sep", income: 5400, expense: 3500, savings: 1900 },
-  { month: "Oct", income: 5900, expense: 4100, savings: 1800 },
-  { month: "Nov", income: 5700, expense: 3900, savings: 1800 },
-  { month: "Dec", income: 6200, expense: 4500, savings: 1700 },
-  { month: "Jan", income: 6900, expense: 4300, savings: 2600 },
-];
-
-const expenseByCategoryData = [
-  { name: "Housing", value: 33, color: "#8b5cf6" },
-  { name: "Food & Dining", value: 27, color: "#f59e0b" },
-  { name: "Shopping", value: 17, color: "#ec4899" },
-  { name: "Entertainment", value: 7, color: "#06b6d4" },
-  { name: "Transportation", value: 10, color: "#3b82f6" },
-  { name: "Others", value: 5, color: "#9ca3af" },
-];
-
-const StatCard = ({ label, value, change, color }) => {
-  const isPositive = change.startsWith("+");
+const StatCard = ({ label, value, change, color, children }) => {
+  const isPositive = change?.startsWith("+");
   const changeColor =
     label === "Total Expense"
       ? isPositive
@@ -59,7 +32,8 @@ const StatCard = ({ label, value, change, color }) => {
     <div className="rounded-xl border border-gray-200 p-6">
       <p className="dark:text-slate-200 text-slate-500 text-sm mb-2">{label}</p>
       <h3 className={`text-3xl font-bold mb-2 ${color}`}>{value}</h3>
-      <p className={`text-sm ${changeColor}`}>{change} vs last month</p>
+      {change && <p className={`text-sm ${changeColor}`}>{change} vs last month</p>}
+      {children}
     </div>
   );
 };
@@ -86,7 +60,63 @@ const InsightCard = ({
 };
 
 export default function Reports() {
-  const [month, setMonth] = useState("December 2025");
+  const [month, setMonth] = useState("All Time");
+  const transactions = useSelector(state => state.transactions || []);
+  
+  // Calculate stats based on real data
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+  const MathAbsExpense = Math.abs(totalExpense);
+  const totalSavings = totalIncome - MathAbsExpense;
+  const savingsRate = totalIncome > 0 ? ((totalSavings / totalIncome) * 100).toFixed(0) : 0;
+
+  // Real Expense by Category
+  const expenseByCategoryMap = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc, t) => {
+      const cat = t.category?.name || "Uncategorized";
+      acc[cat] = (acc[cat] || 0) + Math.abs(t.amount || 0);
+      return acc;
+    }, {});
+    
+  const colors = ["#8b5cf6", "#f59e0b", "#ec4899", "#06b6d4", "#3b82f6", "#9ca3af", "#ef4444", "#10b981"];
+  const expenseByCategoryData = Object.keys(expenseByCategoryMap)
+    .map((name, i) => ({
+      name,
+      value: expenseByCategoryMap[name],
+      color: colors[i % colors.length]
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  // Group by month for trends
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const trendsMap = {};
+  
+  transactions.forEach(t => {
+    const d = new Date(Number(t.date));
+    const label = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+    if (!trendsMap[label]) trendsMap[label] = { month: label, income: 0, expense: 0, spending: 0, savings: 0, sortKey: Number(t.date) };
+    if (t.type === 'income') trendsMap[label].income += t.amount;
+    if (t.type === 'expense') {
+      const amt = Math.abs(t.amount);
+      trendsMap[label].expense += amt;
+      trendsMap[label].spending += amt;
+    }
+    trendsMap[label].savings = trendsMap[label].income - trendsMap[label].expense;
+  });
+
+  const incomeVsExpenseData = Object.values(trendsMap).sort((a, b) => a.sortKey - b.sortKey);
+  const spendingTrendData = incomeVsExpenseData.map(d => ({ month: d.month, spending: d.spending }));
+
+  const handleExport = () => {
+    const exportData = incomeVsExpenseData.map(d => ({
+      Month: d.month,
+      Income: d.income,
+      Expense: d.expense,
+      Savings: d.savings
+    }));
+    exportReportsToExcel(exportData);
+  };
 
   return (
     <div className="px-2.5 lg:px-10 min-h-screen w-full">
@@ -102,10 +132,12 @@ export default function Reports() {
             </p>
           </div>
           <div className="flex gap-4 items-center">
-            <CustomSelect />
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg dark:hover:bg-white dark:hover:text-black cursor-pointer hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg dark:hover:bg-white dark:hover:text-black cursor-pointer hover:bg-gray-50 transition-colors"
+            >
               <Download size={20} />
-              Report
+              Export Excel
             </button>
           </div>
         </div>
@@ -114,26 +146,22 @@ export default function Reports() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             label="Total Income"
-            value="$6,800"
-            change="+8.2%"
+            value={`$${totalIncome.toLocaleString()}`}
             color="text-emerald-500"
           />
           <StatCard
             label="Total Expense"
-            value="$4,350"
-            change="-3.3%"
+            value={`$${MathAbsExpense.toLocaleString()}`}
             color="text-red-500"
           />
           <StatCard
             label="Total Savings"
-            value="$2,450"
-            change="+44.1%"
+            value={`$${totalSavings.toLocaleString()}`}
             color="text-blue-500"
           />
           <StatCard
             label="Savings Rate"
-            value="36%"
-            change=""
+            value={`${savingsRate}%`}
             color="dark:text-gray-300 text-slate-500"
           >
             <p className="text-sm text-gray-600">Target: 30%</p>
@@ -154,7 +182,7 @@ export default function Reports() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value }) => `${name} ${value}%`}
+                  label={({ name, value }) => `${name} ${((value/MathAbsExpense)*100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -230,30 +258,35 @@ export default function Reports() {
 
           <InsightCard
             icon={TrendingUp}
-            title="Great Progress!"
-            message="Your savings rate increased by 44% compared to last month. You're on track to meet your financial goals."
+            title="Healthy Finances"
+            message={`Your savings rate is ${savingsRate}%. Keep up the good work saving for your future!`}
             bgColor="bg-emerald-50"
             titleColor="text-emerald-700"
             messageColor="text-emerald-600"
           />
 
-          <InsightCard
-            icon={TrendingUp}
-            title="Spending Pattern"
-            message="Most of your expenses are in Housing (34%) and Food & Dining (29%). Consider budgeting these categories."
-            bgColor="bg-blue-50"
-            titleColor="text-blue-700"
-            messageColor="text-blue-600"
-          />
+          {expenseByCategoryData.length > 0 && (
+            <InsightCard
+              icon={AlertCircle}
+              title="Top Spending Category"
+              message={`You spent the most in ${expenseByCategoryData[0].name}. Try to look for ways to reduce expenses in this bucket.`}
+              bgColor="bg-blue-50"
+              titleColor="text-blue-700"
+              messageColor="text-blue-600"
+            />
+          )}
 
-          <InsightCard
-            icon={AlertCircle}
-            title="Opportunity"
-            message="You spent $320 on entertainment this month. Consider reducing this by 20% to save an additional $64/month."
-            bgColor="bg-yellow-50"
-            titleColor="text-yellow-700"
-            messageColor="text-yellow-600"
-          />
+          {MathAbsExpense > 0 && (
+            <InsightCard
+              icon={AlertCircle}
+              title="Opportunity"
+              message={`You spent $${MathAbsExpense.toLocaleString()} this period. Consider reducing this by 20% to save an additional $${(MathAbsExpense * 0.2).toFixed(0)}.`}
+              bgColor="bg-yellow-50"
+              titleColor="text-yellow-700"
+              messageColor="text-yellow-600"
+            />
+          )}
+
         </div>
       </div>
     </div>

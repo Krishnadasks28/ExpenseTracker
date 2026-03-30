@@ -2,10 +2,11 @@ import { X } from "lucide-react";
 import CustomSelect from "./ui/CustomSelect";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTransaction } from "../api/transactions.api";
+import { addTransaction, updateTransaction } from "../api/transactions.api";
 import { fetchTransactions } from "../utils/transactions";
+import toast from "react-hot-toast";
 
-const AddTransaction = ({ showModel, setShowModel }) => {
+const AddTransaction = ({ showModel, setShowModel, editingTransaction = null }) => {
   const transactionTypes = ["income", "expense", "contra"];
   const [selectedTransaction, setSelectedTransaction] = useState("income");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -24,6 +25,34 @@ const AddTransaction = ({ showModel, setShowModel }) => {
   const [errors, setErrors] = useState({});
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (showModel) {
+      if (editingTransaction) {
+        setSelectedTransaction(editingTransaction.type);
+        setDescription(editingTransaction.description || "");
+        setAmount(Math.abs(editingTransaction.amount) || "");
+        setDate(new Date(Number(editingTransaction.date)).toISOString().split("T")[0]);
+        if (editingTransaction.type === "contra") {
+          setFromAccount(editingTransaction.fromAccount?.name || "");
+          setToAccount(editingTransaction.toAccount?.name || "");
+        } else {
+          setSelectedCategory(editingTransaction.category?.name || "");
+          setSelectedAccount(editingTransaction.account?.name || "");
+        }
+      } else {
+        setAmount("");
+        setDescription("");
+        setSelectedAccount("");
+        setSelectedCategory("");
+        setDate(new Date().toISOString().split("T")[0]);
+        setFromAccount(""); 
+        setToAccount("");
+      }
+      setErrors({});
+    }
+  }, [showModel, editingTransaction]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm();
@@ -35,6 +64,7 @@ const AddTransaction = ({ showModel, setShowModel }) => {
     const fromAccountId = accounts.find((a) => a.name === fromAccount)?._id;
     const toAccountId = accounts.find((a) => a.name === toAccount)?._id;
     const categoryId = categories.find((c) => c.name === selectedCategory)?._id;
+    
     const transactionData = {
       amount: parseFloat(amount),
       type: selectedTransaction,
@@ -48,22 +78,20 @@ const AddTransaction = ({ showModel, setShowModel }) => {
       transactionData.account = accountId;
       transactionData.category = categoryId;
     }
-    const response = await addTransaction(transactionData);
+    
+    let response;
+    if (editingTransaction) {
+      response = await updateTransaction(editingTransaction._id, transactionData);
+    } else {
+      response = await addTransaction(transactionData);
+    }
+
     if (response.ok) {
-      // alert transaction added successfully
-      alert("Transaction added successfully");
-      setAmount("");
-      setDescription("");
-      setSelectedAccount("");
-      setSelectedCategory("");
-      setDate(new Date().toISOString().split("T")[0]);
-      setFromAccount(""); 
-      setToAccount("");
+      toast.success(editingTransaction ? "Transaction updated successfully" : "Transaction added successfully");
       await fetchTransactions(dispatch);
       setShowModel(false);
     } else {
-      // alert error adding transaction
-      console.error("Error adding transaction");
+      toast.error(editingTransaction ? "Error updating transaction" : "Error adding transaction");
     }
   };
 
@@ -115,10 +143,10 @@ const AddTransaction = ({ showModel, setShowModel }) => {
             <div className="flex justify-between">
               <div>
                 <h1 className="font-semibold text-xl md:text-2xl">
-                  Add Transaction
+                  {editingTransaction ? "Edit Transaction" : "Add Transaction"}
                 </h1>
                 <p className="text-gray-400 text-sm md:text-[16px]">
-                  Enter the details of your transaction below
+                  {editingTransaction ? "Modify the details of your transaction below" : "Enter the details of your transaction below"}
                 </p>
               </div>
               <div>
@@ -143,7 +171,7 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                   id="transactionAmount"
                   name="amount"
                   placeholder="0.00"
-                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400"
+                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 border border-transparent dark:text-white"
                 />
               </div>
 
@@ -176,7 +204,7 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                         value={fromAccount}
                         onChange={setFromAccount}
                         options={accountNames}
-                        placeholder="Select category"
+                        placeholder="Select origin account"
                       />
                     </>
                   ) : (
@@ -238,7 +266,7 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                   onChange={(e) => setDate(e.target.value)}
                   type="date"
                   max={new Date().toISOString().split("T")[0]}
-                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400"
+                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 border border-transparent dark:text-white w-full"
                 />
               </div>
 
@@ -251,40 +279,26 @@ const AddTransaction = ({ showModel, setShowModel }) => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   type="text"
-                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 "
+                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 border border-transparent dark:text-white"
                   placeholder="Add a note (optional)"
                 />
               </div>
 
               <div className="flex gap-4 w-full mt-4">
                 <button
+                  type="button"
                   onClick={() => setShowModel(false)}
                   className="cursor-pointer dark:hover:bg-[oklch(0.200_0_0)] hover:bg-slate-200 border border-slate-300 rounded-xl px-4 py-2 w-1/2"
                 >
                   Cancel
                 </button>
-                {selectedTransaction == "Expense" ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="cursor-pointer hover:bg-red-600 text-white font-bold bg-red-500 rounded-xl px-4 py-2 w-1/2"
-                  >
-                    Add Expense
-                  </button>
-                ) : selectedTransaction === "Income" ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2"
-                  >
-                    Add Income
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2"
-                  >
-                    Add Transaction
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2"
+                >
+                  {editingTransaction ? "Update" : "Add"}
+                </button>
               </div>
             </form>
           </div>

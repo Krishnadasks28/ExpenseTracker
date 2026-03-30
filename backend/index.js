@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 // these middlewares should be before routes
 app.use(
   cors({
-    origin: "https://expense-tracker-lyart-zeta.vercel.app",
+    origin: ["https://expense-tracker-lyart-zeta.vercel.app", "http://localhost:5173"],
     credentials: true,
   }),
 );
