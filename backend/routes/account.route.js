@@ -5,6 +5,8 @@ import { validate } from "../validators/validate.js";
 import {
   addNewAccount,
   getAccounts,
+  updateAccount,
+  deleteAccount,
 } from "../controller/accounts.controller.js";
 const accountRoute = express.Router();
 
@@ -20,7 +22,9 @@ accountRoute.post(
 accountRoute.get("/allAccounts", verifyUser, getAccounts);
 
 // update account
+accountRoute.put("/:id", verifyUser, updateAccount);
 
 // Delete account
+accountRoute.delete("/:id", verifyUser, deleteAccount);
 
 export default accountRoute;
