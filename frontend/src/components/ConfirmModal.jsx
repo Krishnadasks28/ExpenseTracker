@@ -1,14 +1,14 @@
 import { AlertCircle, X } from "lucide-react";
 
-export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmText, variant = "danger" }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-sm shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2 text-rose-500">
+          <div className={`flex items-center gap-2 ${variant === "danger" ? "text-rose-500" : "text-emerald-500"}`}>
             <AlertCircle size={24} />
-            <h2 className="text-xl font-bold">{title || "Confirm Delete"}</h2>
+            <h2 className="text-xl font-bold">{title || "Confirm Action"}</h2>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
             <X size={20} />
@@ -29,9 +29,9 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
               onConfirm();
               onClose();
             }}
-            className="px-4 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition-colors"
+            className={`px-4 py-2 rounded-lg text-white transition-colors ${variant === "danger" ? "bg-rose-500 hover:bg-rose-600" : "bg-emerald-500 hover:bg-emerald-600"}`}
           >
-            Delete
+            {confirmText || (variant === "danger" ? "Delete" : "Confirm")}
           </button>
         </div>
       </div>

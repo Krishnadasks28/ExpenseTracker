@@ -29,6 +29,7 @@ export const transactionQuery = `
             description
             type
             category {
+                _id
                 name
             }
             account {

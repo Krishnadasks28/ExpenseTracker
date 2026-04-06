@@ -14,8 +14,9 @@ export default function Categories() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const dispatch = useDispatch();
 
-  //fetch categories from redux store
+  //fetch categories and transactions from redux store
   const categories = useSelector((state) => state.category);
+  const transactions = useSelector((state) => state.transactions || []);
   const filteredCategories =
     activeFilter === "All"
       ? categories
@@ -122,7 +123,7 @@ export default function Categories() {
                     {category.type}
                   </span>
                   <span className="text-gray-600 dark:text-gray-400 text-sm">
-                    {category.transactions} transactions
+                    {transactions.filter((t) => t.category?._id === category._id).length} transactions
                   </span>
                 </div>
               </div>

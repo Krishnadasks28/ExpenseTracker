@@ -9,32 +9,85 @@ import {
   TrendingUp,
   Banknote,
   PiggyBank,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import AddAccount from "../components/AddAccount";
+import ConfirmModal from "../components/ConfirmModal";
 import { useEffect, useState } from "react";
 import { accountQuery, getData } from "../api/queries.js";
+import { deleteAccount } from "../api/accounts.api";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setAccounts } from "../redux/slices/accountsSlice.js";
 import { calculateTotalTransactions } from "../utils/transactions.js";
 
 export default function Accounts() {
   const [showModel, setShowModel] = useState(false);
+  const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
+  const [activeMenu, setActiveMenu] = useState(null); // ID of account with open menu
+
   const accounts = useSelector((state) => state.accounts);
   const transactions = useSelector((state) => state.transactions);
   const dispatch = useDispatch();
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getData(accountQuery);
-        const data = await res.json();
-        if (data?.data?.accounts) {
-          dispatch(setAccounts(data.data.accounts));
-        }
-      } catch (err) {
-        console.error(err);
+
+  const fetchAccounts = async () => {
+    try {
+      const res = await getData(accountQuery);
+      const data = await res.json();
+      if (data?.data?.accounts) {
+        dispatch(setAccounts(data.data.accounts));
       }
-    })();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccounts();
   }, []);
+
+  const handleEdit = (account) => {
+    setSelectedAccount(account);
+    setModalMode("edit");
+    setShowModel(true);
+    setActiveMenu(null);
+  };
+
+  const handleDeleteClick = (account) => {
+    setAccountToDelete(account);
+    setShowDeleteConfirm(true);
+    setActiveMenu(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!accountToDelete) return;
+
+    try {
+      const res = await deleteAccount(accountToDelete._id);
+      if (res.ok) {
+        toast.success("Account deleted successfully");
+        fetchAccounts();
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData.message || "Failed to delete account");
+      }
+    } catch (err) {
+      toast.error("An error occurred while deleting the account");
+    } finally {
+      setShowDeleteConfirm(false);
+      setAccountToDelete(null);
+    }
+  };
+
+  const handleAddNew = () => {
+    setModalMode("add");
+    setSelectedAccount(null);
+    setShowModel(true);
+  };
 
   const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
 
@@ -50,7 +103,7 @@ export default function Accounts() {
             </p>
           </div>
           <button
-            onClick={() => setShowModel(true)}
+            onClick={handleAddNew}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs lg:text-lg px-2 lg:px-4 py-1.5 lg:py-2 rounded-lg font-medium transition-colors"
           >
             <Plus size={18} className="h-5 w-5 hidden sm:inline" />
@@ -106,9 +159,39 @@ export default function Accounts() {
                       </p>
                     </div>
                   </div>
-                  <button className="text-gray-400 hover:text-gray-600 p-1">
-                    <MoreVertical size={20} />
-                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setActiveMenu(activeMenu === account._id ? null : account._id)}
+                      className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+                    
+                    {activeMenu === account._id && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-10" 
+                          onClick={() => setActiveMenu(null)}
+                        ></div>
+                        <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg z-20 overflow-hidden py-1">
+                          <button 
+                            onClick={() => handleEdit(account)}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
+                          >
+                            <Edit2 size={16} />
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(account)}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-rose-500"
+                          >
+                            <Trash2 size={16} />
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* Balance */}
@@ -168,7 +251,19 @@ export default function Accounts() {
           })}
         </div>
       </div>
-      <AddAccount showModel={showModel} setShowModel={setShowModel} />
+      <AddAccount 
+        showModel={showModel} 
+        setShowModel={setShowModel} 
+        mode={modalMode}
+        accountData={selectedAccount}
+      />
+      <ConfirmModal 
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDelete}
+        title="Delete Account"
+        message={`Are you sure you want to delete the account "${accountToDelete?.name}"? This action cannot be undone.`}
+      />
     </div>
   );
 }

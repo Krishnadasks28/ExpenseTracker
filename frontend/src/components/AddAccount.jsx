@@ -2,53 +2,91 @@ import { X } from "lucide-react";
 import CustomSelect from "./ui/CustomSelect";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewAccount } from "../api/accounts.api";
+import { addNewAccount, updateAccount } from "../api/accounts.api";
 import { setAccounts } from "../redux/slices/accountsSlice";
+import ConfirmModal from "./ConfirmModal";
 import { accountQuery, getData } from "../api/queries";
 import toast from "react-hot-toast";
 
-const AddAccount = ({ showModel, setShowModel }) => {
+const AddAccount = ({ showModel, setShowModel, mode = "add", accountData = null }) => {
   const [accountName, setAccountName] = useState("");
   const [balance, setBalance] = useState(0);
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState({ name: "", balance: "", notes: "" });
+  const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (mode === "edit" && accountData) {
+      setAccountName(accountData.name || "");
+      setBalance(accountData.balance || 0);
+      setNotes(accountData.notes || "");
+    } else {
+      setAccountName("");
+      setBalance(0);
+      setNotes("");
+    }
+    setErrors({ name: "", balance: "", notes: "" });
+  }, [mode, accountData, showModel]);
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     const err = validateForm();
 
     if (Object.keys(err).length === 0) {
-      const data = {
-        name: accountName,
-        balance,
-        notes,
-      };
-      const res = await addNewAccount(data);
-      if (res.ok) {
+      if (mode === "edit") {
+        setShowConfirmUpdate(true);
+        return;
+      }
+      await performSubmit();
+    } else {
+      setErrors(err);
+    }
+  };
+
+  const performSubmit = async () => {
+    const data = {
+      name: accountName,
+      balance,
+      notes,
+    };
+
+    let res;
+    if (mode === "edit") {
+      res = await updateAccount(accountData._id, data);
+    } else {
+      res = await addNewAccount(data);
+    }
+
+    if (res.ok) {
+      if (mode === "add") {
         setAccountName("");
         setBalance(0);
         setNotes("");
-        try {
-          const res = await getData(accountQuery);
-          const data = await res.json();
-          if (data?.data?.accounts) {
-            dispatch(setAccounts(data.data.accounts));
-          }
-        } catch (err) {
-          console.error(err);
-        }
-        toast.success("Account created successfully");
-        setShowModel(false);
-      } else {
-        const response = await res.json();
-        toast.error(response.message || "Error creating account");
       }
+      try {
+        const res = await getData(accountQuery);
+        const data = await res.json();
+        if (data?.data?.accounts) {
+          dispatch(setAccounts(data.data.accounts));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      toast.success(
+        mode === "edit"
+          ? "Account updated successfully"
+          : "Account created successfully",
+      );
+      setShowModel(false);
     } else {
-      console.log(err);
-      setErrors(err);
+      const response = await res.json();
+      toast.error(
+        response.message ||
+          (mode === "edit" ? "Error updating account" : "Error creating account"),
+      );
     }
   };
 
@@ -91,10 +129,12 @@ const AddAccount = ({ showModel, setShowModel }) => {
             <div className="flex justify-between">
               <div>
                 <h1 className="font-semibold text-xl md:text-2xl">
-                  Add Account
+                  {mode === "edit" ? "Edit Account" : "Add Account"}
                 </h1>
                 <p className="text-gray-400 text-sm md:text-[16px]">
-                  Add and track your financial account in one place.
+                  {mode === "edit"
+                    ? "Update your financial account details."
+                    : "Add and track your financial account in one place."}
                 </p>
               </div>
               <div>
@@ -133,7 +173,8 @@ const AddAccount = ({ showModel, setShowModel }) => {
                   id="balance"
                   name="balance"
                   placeholder="0.00"
-                  className="dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400"
+                  disabled={mode === "edit"}
+                  className={`dark:bg-[oklch(0.200_0_0)] rounded-xl bg-slate-100 p-2 focus:outline-0 focus:ring-2 focus:ring-slate-400 ${mode === "edit" ? "opacity-50 cursor-not-allowed" : ""}`}
                 />
               </div>
 
@@ -164,11 +205,20 @@ const AddAccount = ({ showModel, setShowModel }) => {
                   onClick={handleSubmit}
                   className="cursor-pointer hover:bg-emerald-600 text-white font-bold bg-emerald-500 rounded-xl px-4 py-2 w-1/2"
                 >
-                  Add Account
+                  {mode === "edit" ? "Update Account" : "Add Account"}
                 </button>
               </div>
             </form>
           </div>
+          <ConfirmModal
+            isOpen={showConfirmUpdate}
+            onClose={() => setShowConfirmUpdate(false)}
+            onConfirm={performSubmit}
+            title="Confirm Update"
+            confirmText="Update"
+            variant="success"
+            message="Are you sure you want to update this account details?"
+          />
         </div>
       )}
     </>
