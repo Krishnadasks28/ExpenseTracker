@@ -14,14 +14,21 @@ export const createUser = async (id) => {
 };
 
 export const logoutUser = async () => {
-  // firebase signout
-  await signOut(auth);
+  const [firebaseResult, backendResult] = await Promise.allSettled([
+    signOut(auth),
+    fetch(`${API}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }),
+  ]);
 
-  // backend signout
-  await fetch(`${API}/api/auth/logout`, {
-    method: "POST",
-    credentials: "include",
-  });
+  if (firebaseResult.status === "rejected") {
+    console.error("Firebase signout failed:", firebaseResult.reason);
+  }
+
+  if (backendResult.status === "rejected") {
+    console.error("Backend logout failed:", backendResult.reason);
+  }
 };
 
 export const getSessionUser = async () => {

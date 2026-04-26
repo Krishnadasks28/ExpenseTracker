@@ -47,40 +47,40 @@ function AuthLayout() {
 
 function App() {
   const dispatch = useDispatch();
-  const checkSession = async () => {
-    try {
-      const response = await getSessionUser();
-      if (response.ok) {
-        const userData = await response.json();
-        dispatch(setUser(userData.user));
-        await fetchUserData(dispatch);
-        const visited = sessionStorage.getItem("visited");
-        if (!visited) {
-          sessionStorage.setItem("visited", "true");
-          await delay(2000);
-        }
-        dispatch(setLoading(false));
-
-        return true;
-      }
-
-      if (response.status === 401) {
-        // 👈 expected case → no session
-        return false;
-      }
-
-      // 👇 unexpected errors
-      console.error("Unexpected response:", response.status);
-      return false;
-    } catch (err) {
-      console.log("session check error: ", err);
-      console.log("error caught: ", err);
-      // alert error
-    }
-    return false;
-  };
-
   useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await getSessionUser();
+        if (response.ok) {
+          const userData = await response.json();
+          dispatch(setUser(userData.user));
+          await fetchUserData(dispatch);
+          const visited = sessionStorage.getItem("visited");
+          if (!visited) {
+            sessionStorage.setItem("visited", "true");
+            await delay(2000);
+          }
+          dispatch(setLoading(false));
+
+          return true;
+        }
+
+        if (response.status === 401) {
+          // 👈 expected case → no session
+          return false;
+        }
+
+        // 👇 unexpected errors
+        console.error("Unexpected response:", response.status);
+        return false;
+      } catch (err) {
+        console.log("session check error: ", err);
+        console.log("error caught: ", err);
+        // alert error
+      }
+      return false;
+    };
+
     const unSub = onAuthStateChanged(auth, async (user) => {
       // backend session checking
       const hasSession = await checkSession();
@@ -88,7 +88,8 @@ function App() {
 
       // call createUser api only when new user or session expired
       if (user) {
-        const id = await user.getIdToken();
+        // force refresh token to get latest token by using true argument
+        const id = await user.getIdToken(true);
         const res = await createUser(id);
         if (res.ok) {
           const data = await res.json();

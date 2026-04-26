@@ -76,7 +76,7 @@ export default function LoginPage() {
       setGoogleLoading(false);
     } catch (err) {
       setError(err.message || "Google login failed");
-      setGoogleLoading(true);
+      setGoogleLoading(false);
     }
   };
 

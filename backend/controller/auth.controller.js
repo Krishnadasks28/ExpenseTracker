@@ -6,7 +6,7 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 export const register = asyncHandler(async (req, res) => {
   const idToken = req.headers.authorization?.split(" ")[1];
   if (!idToken) {
-    return res.status(404).json({ message: "Token missing" });
+    return res.status(401).json({ message: "Token missing" });
   }
 
   const decoded = await admin.auth().verifyIdToken(idToken);
