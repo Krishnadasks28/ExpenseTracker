@@ -9,64 +9,13 @@ import {
   EyeOff,
   TrendingUp,
 } from "lucide-react";
-import {
-  googleAuth,
-  sendOtp,
-  setUpRecaptcha,
-  verifyOtp,
-} from "../firebase/login";
+import { googleAuth } from "../firebase/login";
 import { createUser } from "../api/auth.api";
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
-
-  const handlePhoneSubmit = async () => {
-    try {
-      setOtpLoading(true);
-      setError("");
-
-      if (!phone || phone.length < 10) {
-        setError("Please enter a valid phone number");
-        setOtpLoading(false);
-        return;
-      }
-
-      setUpRecaptcha();
-      const result = await sendOtp("+91" + phone);
-      console.log(result);
-      setConfirmationResult(result);
-      setOtpLoading(false);
-      setOtpSent(true);
-    } catch (err) {
-      setError(err.message || "Failed to send OTP");
-      setOtpLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async () => {
-    try {
-      setOtpLoading(true);
-      setError("");
-
-      if (!otp || otp.length !== 6) {
-        setError("Please enter a valid 6-digit OTP");
-        setOtpLoading(false);
-        return;
-      }
-
-      await verifyOtp(confirmationResult, otp);
-      setOtpLoading(false);
-    } catch (err) {
-      setError(err.message || "Invalid OTP");
-      setOtpLoading(false);
-    }
-  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -78,12 +27,6 @@ export default function LoginPage() {
       setError(err.message || "Google login failed");
       setGoogleLoading(false);
     }
-  };
-
-  const handleBackToPhone = () => {
-    setOtpSent(false);
-    setOtp("");
-    setError("");
   };
 
   return (
@@ -113,124 +56,12 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Login Methods Tabs */}
-
-        {/* Phone Authentication */}
-
-        <div className="space-y-6">
-          {!otpSent ? (
-            <>
-              {/* Phone Input */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="tel"
-                    placeholder="+1 (555) 000-0000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white transition-all placeholder-gray-400 text-gray-900"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-2 ml-1">
-                  We'll send you an OTP to verify
-                </p>
-              </div>
-
-              {/* Send OTP Button */}
-              <button
-                onClick={handlePhoneSubmit}
-                disabled={otpLoading || googleLoading}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 hover:shadow-lg active:scale-95"
-              >
-                {otpLoading ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Sending OTP...
-                  </>
-                ) : (
-                  <>
-                    <ArrowRight className="w-5 h-5" />
-                    Send OTP
-                  </>
-                )}
-              </button>
-              <div id="recaptcha-container"></div>
-            </>
-          ) : (
-            <>
-              {/* OTP Input */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
-                  Enter OTP
-                </label>
-                <p className="text-xs text-gray-500 mb-4 ml-1">
-                  We sent a 6-digit code to{" "}
-                  <span className="font-semibold text-gray-700">{phone}</span>
-                </p>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500">
-                    🔐
-                  </div>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="000000"
-                    value={otp}
-                    onChange={(e) =>
-                      setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
-                    maxLength="6"
-                    className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white transition-all placeholder-gray-400 text-2xl tracking-[0.5em] font-semibold text-center text-gray-900"
-                  />
-                </div>
-              </div>
-
-              {/* Verify OTP Button */}
-              <button
-                onClick={handleOtpSubmit}
-                disabled={otpLoading}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
-              >
-                {otpLoading ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Verify OTP
-                  </>
-                )}
-              </button>
-
-              {/* Change Phone Button */}
-              <button
-                onClick={handleBackToPhone}
-                className="w-full text-emerald-600 hover:text-emerald-700 font-semibold py-2.5 text-sm transition-colors duration-200 hover:bg-emerald-50 rounded-lg"
-              >
-                Change Phone Number
-              </button>
-            </>
-          )}
-        </div>
-
         {/* Google Authentication */}
-
-        <div className="flex items-center gap-4 my-5">
-          <div className="flex-1 h-px bg-slate-300"></div>
-          <span className="text-slate-400 text-sm font-medium">OR</span>
-          <div className="flex-1 h-px bg-slate-300"></div>
-        </div>
 
         <div className="space-y-4 mt-2">
           <button
             onClick={handleGoogleLogin}
-            disabled={otpLoading || googleLoading}
+            disabled={googleLoading}
             className="w-full border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 text-gray-900 font-bold py-3.5 rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 active:scale-95"
           >
             {googleLoading ? (
